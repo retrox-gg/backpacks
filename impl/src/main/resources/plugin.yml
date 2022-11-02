@@ -1,0 +1,11 @@
+name: Backpacks
+version: '${project.version}'
+main: io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
+api-version: 1.19
+authors: [ ms5984 ]
+description: ${project.description}
+depend: ["Accessories"]
+libraries:
+  - "org.jetbrains.kotlin:kotlin-stdlib:1.7.20"
+  - "cloud.commandframework:cloud-paper:1.7.1"
+  - "cloud.commandframework:cloud-annotations:1.7.1"
