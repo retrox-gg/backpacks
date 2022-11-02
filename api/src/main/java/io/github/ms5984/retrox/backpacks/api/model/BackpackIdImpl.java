@@ -15,8 +15,6 @@ package io.github.ms5984.retrox.backpacks.api.model;
  *  limitations under the License.
  */
 
-import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,28 +60,6 @@ record BackpackIdImpl(UUID uuid) implements BackpackId {
             return UUID.fromString(stringRepresentation);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("stringRepresentation is not a valid backpack id", e);
-        }
-    }
-
-    static final class Type implements PersistentDataType<byte[], BackpackIdImpl> {
-        @Override
-        public @NotNull Class<byte[]> getPrimitiveType() {
-            return byte[].class;
-        }
-
-        @Override
-        public @NotNull Class<BackpackIdImpl> getComplexType() {
-            return BackpackIdImpl.class;
-        }
-
-        @Override
-        public byte @NotNull [] toPrimitive(@NotNull BackpackIdImpl complex, @NotNull PersistentDataAdapterContext context) {
-            return complex.asBytes();
-        }
-
-        @Override
-        public @NotNull BackpackIdImpl fromPrimitive(byte @NotNull [] primitive, @NotNull PersistentDataAdapterContext context) {
-            return new BackpackIdImpl(unwrap(primitive));
         }
     }
 }

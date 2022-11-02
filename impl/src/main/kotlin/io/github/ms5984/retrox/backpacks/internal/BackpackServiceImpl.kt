@@ -15,18 +15,12 @@ package io.github.ms5984.retrox.backpacks.internal
  *  limitations under the License.
  */
 
-import org.bukkit.NamespacedKey
-import org.bukkit.plugin.java.JavaPlugin
+import io.github.ms5984.retrox.backpacks.api.Backpack
+import io.github.ms5984.retrox.backpacks.api.BackpackService
+import io.github.ms5984.retrox.backpacks.api.model.BackpackId
 
-@Suppress("unused")
-class BackpacksPlugin : JavaPlugin() {
-    val backpackIdKey = NamespacedKey(this, "backpack_id")
-
-    override fun onEnable() {
-        // Plugin startup logic
-    }
-
-    override fun onDisable() {
-        // Plugin shutdown logic
+class BackpackServiceImpl : BackpackService {
+    override fun getById(id: BackpackId): Backpack? {
+        TODO("Not yet implemented")
     }
 }

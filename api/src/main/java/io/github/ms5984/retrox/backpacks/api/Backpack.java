@@ -17,6 +17,7 @@ package io.github.ms5984.retrox.backpacks.api;
 
 import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool;
 import io.github.ms5984.retrox.backpacks.api.model.BackpackId;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,6 +41,13 @@ public interface Backpack {
      * @see BackpackId#fromBytes(byte[])
      */
     @NotNull BackpackId id();
+
+    /**
+     * Open this backpack for a player.
+     *
+     * @param player a player
+     */
+    void open(@NotNull Player player);
 
     /**
      * Get the meta tool for this backpack.

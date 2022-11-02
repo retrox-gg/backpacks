@@ -1,4 +1,4 @@
-package io.github.ms5984.retrox.backpacks.internal
+package io.github.ms5984.retrox.backpacks.internal.items
 /*
  *  Copyright 2022 ms5984, Retrox
  *
@@ -15,18 +15,14 @@ package io.github.ms5984.retrox.backpacks.internal
  *  limitations under the License.
  */
 
-import org.bukkit.NamespacedKey
-import org.bukkit.plugin.java.JavaPlugin
+import io.github.ms5984.retrox.backpacks.api.Backpack
+import io.github.ms5984.retrox.backpacks.api.items.AssociationTool
+import org.bukkit.inventory.ItemStack
 
-@Suppress("unused")
-class BackpacksPlugin : JavaPlugin() {
-    val backpackIdKey = NamespacedKey(this, "backpack_id")
-
-    override fun onEnable() {
-        // Plugin startup logic
-    }
-
-    override fun onDisable() {
-        // Plugin shutdown logic
+data class AssociationToolImpl(private val backpack: Backpack, private val item: ItemStack) : AssociationTool {
+    override fun backpack() = backpack
+    override fun item() = item
+    override fun associate() {
+        TODO("Not yet implemented")
     }
 }
