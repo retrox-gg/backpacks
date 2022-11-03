@@ -16,13 +16,11 @@ package io.github.ms5984.retrox.backpacks.internal
  */
 
 import io.github.ms5984.retrox.backpacks.api.Backpack
-import io.github.ms5984.retrox.backpacks.api.model.BackpackId
+import io.github.ms5984.retrox.backpacks.internal.data.StoredItems
 import io.github.ms5984.retrox.backpacks.internal.items.BackpackMetaToolImpl
 import org.bukkit.entity.Player
 
-data class BackpackImpl(private val id: BackpackId) : Backpack {
-    override fun id() = id
-
+data class BackpackImpl(val items: StoredItems) : Backpack {
     override fun open(player: Player) {
         TODO("Not yet implemented")
     }

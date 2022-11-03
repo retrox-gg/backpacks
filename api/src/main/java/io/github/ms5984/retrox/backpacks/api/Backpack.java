@@ -16,12 +16,9 @@ package io.github.ms5984.retrox.backpacks.api;
  */
 
 import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool;
-import io.github.ms5984.retrox.backpacks.api.model.BackpackId;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Represents a backpack.
@@ -31,17 +28,6 @@ import java.util.UUID;
  */
 @ApiStatus.NonExtendable
 public interface Backpack {
-    /**
-     * Get the id of this backpack.
-     *
-     * @return the id of this backpack
-     * @see BackpackId#randomId()
-     * @see BackpackId#fromUuid(UUID) 
-     * @see BackpackId#fromString(String)
-     * @see BackpackId#fromBytes(byte[])
-     */
-    @NotNull BackpackId id();
-
     /**
      * Open this backpack for a player.
      *

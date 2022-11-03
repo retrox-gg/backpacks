@@ -17,21 +17,14 @@ package io.github.ms5984.retrox.backpacks.internal
 
 import io.github.ms5984.retrox.backpacks.api.Backpack
 import io.github.ms5984.retrox.backpacks.api.BackpackService
-import io.github.ms5984.retrox.backpacks.api.model.BackpackId
-import io.github.ms5984.retrox.backpacks.internal.items.MetadataId
-import org.bukkit.Bukkit
+import io.github.ms5984.retrox.backpacks.internal.items.ItemMetaStorage
 import org.bukkit.inventory.ItemStack
 
 class BackpackServiceImpl : BackpackService {
-    override fun getById(id: BackpackId): Backpack? {
-        TODO("Not yet implemented")
-    }
-
-    override fun getByItem(item: ItemStack?): Backpack? {
+    override fun getBackpack(item: ItemStack?): Backpack? {
         return item?.let {
-            val backpackService = Bukkit.getServicesManager().load(BackpackService::class.java) ?: return null
-            return it.itemMeta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, MetadataId)
-                ?.let { it1 -> backpackService.getById(it1) }
+            return it.itemMeta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, ItemMetaStorage)
+                ?.let(::BackpackImpl)
         }
     }
 }

@@ -15,20 +15,20 @@ package io.github.ms5984.retrox.backpacks.internal.items
  *  limitations under the License.
  */
 
-import io.github.ms5984.retrox.backpacks.api.Backpack
 import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool
+import io.github.ms5984.retrox.backpacks.internal.BackpackImpl
 import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.annotations.NotNull
 import java.util.function.Function
 
-data class BackpackMetaToolImpl(private val backpack: Backpack) : BackpackMetaTool {
+data class BackpackMetaToolImpl(private val backpack: BackpackImpl) : BackpackMetaTool {
     override fun setBackpack(item: @NotNull ItemStack): Boolean {
         val meta = item.itemMeta
-        return when (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, MetadataId)) {
-            backpack.id() -> false
+        return when (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, ItemMetaStorage)) {
+            backpack.items -> false
             else -> {
-                meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackIdKey, MetadataId, backpack.id())
+                meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackIdKey, ItemMetaStorage, backpack.items)
                 item.itemMeta = meta
                 true
             }
