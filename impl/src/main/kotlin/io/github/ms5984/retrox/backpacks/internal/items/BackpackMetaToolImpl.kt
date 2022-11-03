@@ -20,17 +20,13 @@ import io.github.ms5984.retrox.backpacks.api.items.AssociationTool
 import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool
 import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import org.bukkit.inventory.ItemStack
-import org.bukkit.plugin.java.JavaPlugin
 import org.jetbrains.annotations.NotNull
 import java.util.function.Function
 
 data class BackpackMetaToolImpl(private val backpack: Backpack) : BackpackMetaTool {
-    private val key
-        get() = JavaPlugin.getPlugin(BackpacksPlugin::class.java).backpackIdKey
-
     override fun setBackpack(item: @NotNull ItemStack): AssociationTool {
         val meta = item.itemMeta
-        meta.persistentDataContainer.set(key, MetadataId, backpack.id())
+        meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackIdKey, MetadataId, backpack.id())
         item.itemMeta = meta
         return AssociationToolImpl(backpack, item)
     }

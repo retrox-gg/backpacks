@@ -24,9 +24,15 @@ class BackpacksPlugin : JavaPlugin() {
 
     override fun onEnable() {
         // Plugin startup logic
+        instance = this
     }
 
     override fun onDisable() {
         // Plugin shutdown logic
+    }
+
+    companion object {
+        lateinit var instance: BackpacksPlugin
+            private set
     }
 }

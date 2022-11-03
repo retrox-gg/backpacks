@@ -21,16 +21,12 @@ import io.github.ms5984.retrox.backpacks.api.BackpackService
 import io.github.ms5984.retrox.backpacks.internal.items.MetadataId
 import org.bukkit.Bukkit
 import org.bukkit.inventory.ItemStack
-import org.bukkit.plugin.java.JavaPlugin
 
 class BackpackItemServiceImpl : BackpackItemService {
-    private val key
-        get() = JavaPlugin.getPlugin(BackpacksPlugin::class.java).backpackIdKey
-
     override fun getBackpack(item: ItemStack?): Backpack? {
         return item?.let {
             val backpackService = Bukkit.getServicesManager().load(BackpackService::class.java) ?: return null
-            val id = it.itemMeta.persistentDataContainer.get(key, MetadataId)
+            val id = it.itemMeta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, MetadataId)
             return id?.let { it1 -> backpackService.getById(it1) }
         }
     }
