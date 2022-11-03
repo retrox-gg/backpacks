@@ -17,12 +17,14 @@ package io.github.ms5984.retrox.backpacks.api;
 
 import io.github.ms5984.retrox.backpacks.api.model.BackpackId;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Provides id-based backpack resolution for this and other plugins.
+ * Provides backpack resolution for this and other plugins.
  *
  * @since 0.0.1
  * @author ms5984
@@ -36,6 +38,15 @@ public interface BackpackService {
      * @return the backpack or null if not found
      */
     @Nullable Backpack getById(@NotNull BackpackId id);
+
+    /**
+     * Get the backpack represented by an item.
+     *
+     * @param item an item
+     * @return the backpack represented by the item or null if not a backpack
+     */
+    @Contract("null -> null")
+    @Nullable Backpack getByItem(@Nullable ItemStack item);
 
     /**
      * Get the current service instance.

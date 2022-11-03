@@ -34,17 +34,20 @@ public interface BackpackMetaTool {
      * <strong>{@code item} will be modified.</strong>
      *
      * @param item an item
-     * @return an association tool, for chaining
+     * @return true unless the item was not modified
      */
     @Contract(mutates = "param1")
-    @NotNull AssociationTool setBackpack(@NotNull ItemStack item);
+    boolean setBackpack(@NotNull ItemStack item);
 
     /**
      * Get a function which applies this backpack to an item.
      * <p>
      * <strong>The returned function will modify its argument.</strong>
+     * <p>
+     * The contract of the returned function is the same as described by
+     * {@link #setBackpack(ItemStack)}.
      *
      * @return a function applying this backpack to an item
      */
-    @NotNull Function<@NotNull ItemStack, AssociationTool> asFunction();
+    @NotNull Function<@NotNull ItemStack, Boolean> asFunction();
 }

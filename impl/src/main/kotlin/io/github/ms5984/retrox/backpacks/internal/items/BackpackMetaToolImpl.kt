@@ -16,7 +16,6 @@ package io.github.ms5984.retrox.backpacks.internal.items
  */
 
 import io.github.ms5984.retrox.backpacks.api.Backpack
-import io.github.ms5984.retrox.backpacks.api.items.AssociationTool
 import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool
 import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import org.bukkit.inventory.ItemStack
@@ -24,14 +23,19 @@ import org.jetbrains.annotations.NotNull
 import java.util.function.Function
 
 data class BackpackMetaToolImpl(private val backpack: Backpack) : BackpackMetaTool {
-    override fun setBackpack(item: @NotNull ItemStack): AssociationTool {
+    override fun setBackpack(item: @NotNull ItemStack): Boolean {
         val meta = item.itemMeta
-        meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackIdKey, MetadataId, backpack.id())
-        item.itemMeta = meta
-        return AssociationToolImpl(backpack, item)
+        return when (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, MetadataId)) {
+            backpack.id() -> false
+            else -> {
+                meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackIdKey, MetadataId, backpack.id())
+                item.itemMeta = meta
+                true
+            }
+        }
     }
 
-    override fun asFunction(): Function<@NotNull ItemStack, AssociationTool> {
+    override fun asFunction(): Function<@NotNull ItemStack, Boolean> {
         return Function(::setBackpack)
     }
 }
