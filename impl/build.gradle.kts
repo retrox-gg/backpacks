@@ -8,9 +8,11 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
+val kotlinVersion by extra(kotlin.coreLibrariesVersion)
+
 dependencies {
     api(project(":api"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.20")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
     implementation("cloud.commandframework", "cloud-paper", "1.7.1")
     implementation("cloud.commandframework:cloud-annotations:1.7.1")
     annotationProcessor("cloud.commandframework:cloud-annotations:1.7.1")
