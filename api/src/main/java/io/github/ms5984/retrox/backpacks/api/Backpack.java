@@ -36,6 +36,15 @@ public interface Backpack {
     void open(@NotNull Player player);
 
     /**
+     * Get the number of extra rows this backpack has.
+     *
+     * @return the number of extra rows
+     */
+    default int extraRows() {
+        return 0;
+    }
+
+    /**
      * Get the meta tool for this backpack.
      * <p>
      * Useful for transforming items.

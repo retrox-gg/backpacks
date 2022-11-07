@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Predicate;
+
 /**
  * Resolve backpack data for this and other plugins.
  *
@@ -29,7 +31,17 @@ import org.jetbrains.annotations.Nullable;
  * @author ms5984
  */
 @ApiStatus.NonExtendable
-public interface BackpackService {
+public interface BackpackService extends Predicate<ItemStack> {
+    /**
+     * Check if an item has backpack data.
+     *
+     * @param item an item
+     * @return true if the item has backpack data
+     */
+    @Override
+    @Contract("null -> false")
+    boolean test(ItemStack item);
+
     /**
      * Load the backpack data stored in an item.
      *
