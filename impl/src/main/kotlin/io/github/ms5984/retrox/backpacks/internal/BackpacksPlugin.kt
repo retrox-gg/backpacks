@@ -23,7 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 @Suppress("unused")
 class BackpacksPlugin : JavaPlugin() {
-    val backpackIdKey = NamespacedKey(this, "backpack_id")
+    val backpackKey = NamespacedKey(this, "backpack")
     private val backpackService = BackpackServiceImpl(this)
 
     override fun onEnable() {

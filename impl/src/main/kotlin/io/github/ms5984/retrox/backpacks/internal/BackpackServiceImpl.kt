@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack
 data class BackpackServiceImpl(private val plugin: BackpacksPlugin) : BackpackService {
     override fun loadFromItem(item: ItemStack?): Backpack? {
         return item?.let {
-            return it.itemMeta.persistentDataContainer.get(plugin.backpackIdKey, ItemMetaStorage)
+            return it.itemMeta.persistentDataContainer.get(plugin.backpackKey, ItemMetaStorage)
                 ?.let(::BackpackImpl)
         }
     }

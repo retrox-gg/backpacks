@@ -24,10 +24,10 @@ import org.jetbrains.annotations.NotNull
 data class BackpackMetaToolImpl(private val backpack: BackpackImpl) : BackpackMetaTool {
     override fun apply(item: @NotNull ItemStack): Boolean {
         val meta = item.itemMeta
-        return when (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, ItemMetaStorage)) {
+        return when (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackKey, ItemMetaStorage)) {
             backpack.items -> false
             else -> {
-                meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackIdKey, ItemMetaStorage, backpack.items)
+                meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackKey, ItemMetaStorage, backpack.items)
                 item.itemMeta = meta
                 true
             }
