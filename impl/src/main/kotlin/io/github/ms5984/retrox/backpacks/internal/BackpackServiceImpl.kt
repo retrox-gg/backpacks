@@ -15,10 +15,13 @@ package io.github.ms5984.retrox.backpacks.internal
  *  limitations under the License.
  */
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.github.ms5984.retrox.backpacks.api.Backpack
 import io.github.ms5984.retrox.backpacks.api.BackpackService
 import io.github.ms5984.retrox.backpacks.internal.items.ItemMetaStorage
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 
 data class BackpackServiceImpl(private val plugin: BackpacksPlugin) : BackpackService {
     override fun test(item: ItemStack?): Boolean {
@@ -29,10 +32,19 @@ data class BackpackServiceImpl(private val plugin: BackpacksPlugin) : BackpackSe
     }
 
     override fun loadFromItem(item: ItemStack?): Backpack? {
-        return item?.let {
-            return it.itemMeta.persistentDataContainer.get(plugin.backpackKey, ItemMetaStorage)
-                ?.let(::BackpackImpl)
+        item?.let {
+            it.itemMeta.persistentDataContainer.apply {
+                val items = get(plugin.backpackKey, ItemMetaStorage) ?: return null // This is not a backpack
+                get(plugin.optionsKey, PersistentDataType.STRING)?.let { json ->
+                    Gson().fromJson<HashMap<String, Any>?>(
+                        json,
+                        TypeToken.getParameterized(HashMap::class.java, String::class.java, Any::class.java).type
+                    )
+                }?.let { map -> return BackpackImpl(items, map) }
+                return BackpackImpl(items)
+            }
         }
+        return null
     }
 
     override fun create() = BackpackImpl()

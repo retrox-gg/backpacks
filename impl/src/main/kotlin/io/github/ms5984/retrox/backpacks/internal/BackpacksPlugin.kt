@@ -18,12 +18,31 @@ package io.github.ms5984.retrox.backpacks.internal
 import io.github.ms5984.retrox.backpacks.api.BackpackService
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.persistence.PersistentDataType.STRING
 import org.bukkit.plugin.ServicePriority.Normal
 import org.bukkit.plugin.java.JavaPlugin
 
 @Suppress("unused")
 class BackpacksPlugin : JavaPlugin() {
+    /**
+     * The key used to store backpack data in item meta.
+     *
+     * This key is required for all backpacks, and it is its presence and
+     * proper storage type that determines whether an item is a backpack.
+     *
+     * Currently, the [STRING] type is used.
+     */
     val backpackKey = NamespacedKey(this, "backpack")
+
+    /**
+     * The key used to store backpack options in item meta.
+     *
+     * This key is optional. Currently, its only function is to store the
+     * number of extra rows the backpack has.
+     *
+     * The [STRING] type is used.
+     */
+    val optionsKey = NamespacedKey(this, "options")
     private val backpackService = BackpackServiceImpl(this)
 
     override fun onEnable() {

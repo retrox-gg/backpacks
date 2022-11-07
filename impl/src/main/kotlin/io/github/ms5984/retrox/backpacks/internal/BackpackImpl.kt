@@ -20,14 +20,14 @@ import io.github.ms5984.retrox.backpacks.internal.data.StoredItems
 import io.github.ms5984.retrox.backpacks.internal.items.BackpackMetaToolImpl
 import org.bukkit.entity.Player
 
-data class BackpackImpl(val items: StoredItems = StoredItems(), var extraRows: Int = 0) : Backpack {
+data class BackpackImpl(val items: StoredItems = StoredItems(), val options: MutableMap<String, Any> = HashMap()) : Backpack {
     override fun open(player: Player) {
         TODO("Not yet implemented")
     }
 
-    override fun extraRows() = extraRows
+    override fun extraRows() = options["extraRows"] as? Int ?: 0
 
     override fun metaTool() = BackpackMetaToolImpl(this)
 
-    override fun copy() = BackpackImpl(StoredItems(items))
+    override fun copy() = BackpackImpl(StoredItems(items), options.toMutableMap())
 }

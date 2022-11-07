@@ -15,22 +15,32 @@ package io.github.ms5984.retrox.backpacks.internal.items
  *  limitations under the License.
  */
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool
 import io.github.ms5984.retrox.backpacks.internal.BackpackImpl
 import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.annotations.NotNull
 
 data class BackpackMetaToolImpl(private val backpack: BackpackImpl) : BackpackMetaTool {
     override fun apply(item: @NotNull ItemStack): Boolean {
         val meta = item.itemMeta
-        return when (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackKey, ItemMetaStorage)) {
-            backpack.items -> false
-            else -> {
-                meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackKey, ItemMetaStorage, backpack.items)
-                item.itemMeta = meta
-                true
-            }
+        // generate json from options
+        val options = Gson().toJson(backpack.options, TypeToken.getParameterized(HashMap::class.java, String::class.java, Any::class.java).type)
+        var update = false
+        if (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackKey, ItemMetaStorage) != backpack.items) {
+            // update items
+            meta.persistentDataContainer.set(BackpacksPlugin.instance.backpackKey, ItemMetaStorage, backpack.items)
+            update = true
         }
+        if (meta.persistentDataContainer.get(BackpacksPlugin.instance.optionsKey, PersistentDataType.STRING) != options) {
+            // update options
+            meta.persistentDataContainer.set(BackpacksPlugin.instance.optionsKey, PersistentDataType.STRING, options)
+            update = true
+        }
+        if (update) item.itemMeta = meta
+        return update
     }
 }
