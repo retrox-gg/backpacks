@@ -59,7 +59,7 @@ data class Commands(private val plugin: BackpacksPlugin) {
                     backpack as BackpackImpl
                     backpack.items.setItem(0, it)
                 }.metaTool().apply(it)
-            }.apply {targetPlayer.inventory::addItem }
+            }.also { targetPlayer.inventory.addItem(it) }.also { plugin.logger.info("$it") }
             return
         }
         Messages.get("fail.command.target.playerOrSelf").send(sender)
