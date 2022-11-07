@@ -16,6 +16,8 @@ package io.github.ms5984.retrox.backpacks.internal
  */
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.ToNumberPolicy
 import com.google.gson.reflect.TypeToken
 import io.github.ms5984.retrox.backpacks.api.Backpack
 import io.github.ms5984.retrox.backpacks.api.BackpackService
@@ -24,6 +26,9 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
 data class BackpackServiceImpl(private val plugin: BackpacksPlugin) : BackpackService {
+    // Force Gson to deserialize numbers as Number (not Double)
+    private val gson: Gson = GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER).create()
+
     override fun test(item: ItemStack?): Boolean {
         item?.let {
             return it.itemMeta.persistentDataContainer.has(plugin.backpackKey, ItemMetaStorage)
@@ -36,7 +41,7 @@ data class BackpackServiceImpl(private val plugin: BackpacksPlugin) : BackpackSe
             it.itemMeta.persistentDataContainer.apply {
                 val items = get(plugin.backpackKey, ItemMetaStorage) ?: return null // This is not a backpack
                 get(plugin.optionsKey, PersistentDataType.STRING)?.let { json ->
-                    Gson().fromJson<HashMap<String, Any>?>(
+                    gson.fromJson<HashMap<String, Any>?>(
                         json,
                         TypeToken.getParameterized(HashMap::class.java, String::class.java, Any::class.java).type
                     )
