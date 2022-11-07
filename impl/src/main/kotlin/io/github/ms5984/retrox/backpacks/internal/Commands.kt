@@ -58,7 +58,17 @@ data class Commands(private val plugin: BackpacksPlugin) {
                     // stick the styled item in the backpack
                     backpack as BackpackImpl
                     backpack.items.setItem(0, it)
-                }.metaTool().apply(it)
+                    backpack.metaTool().apply(it)
+                    // TODO: remove after test
+                    // Attempt to load from the item
+                    BackpackService.getInstance().loadFromItem(it)!!.let { loadedBackpack ->
+                        loadedBackpack as BackpackImpl
+                        // Report the loaded backpack
+                        loadedBackpack.items.items.forEach { entry ->
+                            sender.sendMessage("Loaded backpack item: ${entry.value} at ${entry.key}")
+                        }
+                    }
+                }
             }.also { targetPlayer.inventory.addItem(it) }.also { plugin.logger.info("$it") }
             return
         }
