@@ -15,16 +15,22 @@ package io.github.ms5984.retrox.backpacks.internal
  *  limitations under the License.
  */
 
+import io.github.ms5984.retrox.backpacks.api.BackpackService
+import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.plugin.ServicePriority.Normal
 import org.bukkit.plugin.java.JavaPlugin
 
 @Suppress("unused")
 class BackpacksPlugin : JavaPlugin() {
     val backpackIdKey = NamespacedKey(this, "backpack_id")
+    private val backpackService = BackpackServiceImpl(this)
 
     override fun onEnable() {
         // Plugin startup logic
         instance = this
+        Bukkit.getServicesManager().register(BackpackService::class.java, backpackService, this, Normal)
+        Commands(this).initCommands()
     }
 
     override fun onDisable() {
