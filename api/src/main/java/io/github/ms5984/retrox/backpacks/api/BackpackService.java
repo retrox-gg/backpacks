@@ -31,13 +31,20 @@ import org.jetbrains.annotations.Nullable;
 @ApiStatus.NonExtendable
 public interface BackpackService {
     /**
-     * Get the backpack from an item.
+     * Load the backpack data stored in an item.
      *
      * @param item an item
      * @return the backpack represented by the item or null if not a backpack
      */
     @Contract("null -> null")
-    @Nullable Backpack getBackpack(@Nullable ItemStack item);
+    @Nullable Backpack loadFromItem(@Nullable ItemStack item);
+
+    /**
+     * Create a new, empty backpack.
+     *
+     * @return a new backpack
+     */
+    @NotNull Backpack create();
 
     /**
      * Get the current service instance.

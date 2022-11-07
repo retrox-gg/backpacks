@@ -26,6 +26,8 @@ data class StoredItems(private val _items: MutableMap<Int, ItemStack> = HashMap(
     val items
         get() = _items.toMap()
 
+    constructor(that: StoredItems) : this(that._items.toMutableMap())
+
     fun setItem(position: Int, item: ItemStack?) : Boolean {
         if (position < 0) throw IllegalArgumentException("position must be non-negative")
         if (item == null) return _items.remove(position) != null

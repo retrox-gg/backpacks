@@ -21,10 +21,12 @@ import io.github.ms5984.retrox.backpacks.internal.items.ItemMetaStorage
 import org.bukkit.inventory.ItemStack
 
 class BackpackServiceImpl : BackpackService {
-    override fun getBackpack(item: ItemStack?): Backpack? {
+    override fun loadFromItem(item: ItemStack?): Backpack? {
         return item?.let {
             return it.itemMeta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, ItemMetaStorage)
                 ?.let(::BackpackImpl)
         }
     }
+
+    override fun create() = BackpackImpl()
 }

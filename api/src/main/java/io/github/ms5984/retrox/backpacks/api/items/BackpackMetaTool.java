@@ -16,6 +16,7 @@ package io.github.ms5984.retrox.backpacks.api.items;
  */
 
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,6 +28,7 @@ import java.util.function.Function;
  * @since 0.0.1
  * @author ms5984
  */
+@ApiStatus.NonExtendable
 public interface BackpackMetaTool {
     /**
      * Apply this backpack to an item.
@@ -37,7 +39,7 @@ public interface BackpackMetaTool {
      * @return true unless the item was not modified
      */
     @Contract(mutates = "param1")
-    boolean setBackpack(@NotNull ItemStack item);
+    boolean apply(@NotNull ItemStack item);
 
     /**
      * Get a function which applies this backpack to an item.
@@ -45,9 +47,11 @@ public interface BackpackMetaTool {
      * <strong>The returned function will modify its argument.</strong>
      * <p>
      * The contract of the returned function is the same as described by
-     * {@link #setBackpack(ItemStack)}.
+     * {@link #apply(ItemStack)}.
      *
      * @return a function applying this backpack to an item
      */
-    @NotNull Function<@NotNull ItemStack, Boolean> asFunction();
+    default @NotNull Function<@NotNull ItemStack, Boolean> asFunction() {
+        return this::apply;
+    }
 }

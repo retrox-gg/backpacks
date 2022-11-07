@@ -20,10 +20,9 @@ import io.github.ms5984.retrox.backpacks.internal.BackpackImpl
 import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.annotations.NotNull
-import java.util.function.Function
 
 data class BackpackMetaToolImpl(private val backpack: BackpackImpl) : BackpackMetaTool {
-    override fun setBackpack(item: @NotNull ItemStack): Boolean {
+    override fun apply(item: @NotNull ItemStack): Boolean {
         val meta = item.itemMeta
         return when (meta.persistentDataContainer.get(BackpacksPlugin.instance.backpackIdKey, ItemMetaStorage)) {
             backpack.items -> false
@@ -33,9 +32,5 @@ data class BackpackMetaToolImpl(private val backpack: BackpackImpl) : BackpackMe
                 true
             }
         }
-    }
-
-    override fun asFunction(): Function<@NotNull ItemStack, Boolean> {
-        return Function(::setBackpack)
     }
 }

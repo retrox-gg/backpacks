@@ -43,4 +43,24 @@ public interface Backpack {
      * @return the meta tool for this backpack
      */
     @NotNull BackpackMetaTool metaTool();
+
+    /**
+     * Copy this backpack.
+     *
+     * @return a copy of this backpack and its content
+     */
+    @NotNull Backpack copy();
+
+    /**
+     * Create a new, empty backpack.
+     * <p>
+     * Delegates to {@link BackpackService#create()}.
+     *
+     * @return a new backpack
+     * @throws IllegalStateException if no {@linkplain BackpackService}
+     * yet registered
+     */
+    static @NotNull Backpack create() {
+        return BackpackService.getInstance().create();
+    }
 }
