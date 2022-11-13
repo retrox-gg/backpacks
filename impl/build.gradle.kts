@@ -25,6 +25,7 @@ tasks.withType<ProcessResources> {
 }
 
 tasks.withType<ShadowJar> {
+    archiveClassifier.set("plugin")
     dependencies {
         include(project(":api"))
     }
