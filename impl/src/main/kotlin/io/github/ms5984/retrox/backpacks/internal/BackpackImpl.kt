@@ -17,15 +17,19 @@ package io.github.ms5984.retrox.backpacks.internal
 
 import io.github.ms5984.retrox.backpacks.api.Backpack
 import io.github.ms5984.retrox.backpacks.internal.data.StoredItems
+import io.github.ms5984.retrox.backpacks.internal.gui.BackpackGUI
 import io.github.ms5984.retrox.backpacks.internal.items.BackpackMetaToolImpl
 import org.bukkit.entity.Player
 
 data class BackpackImpl(val items: StoredItems = StoredItems(), val options: MutableMap<String, Any> = HashMap()) : Backpack {
+    val rows
+        get() = DEFAULT_ROWS + extraRows()
+
     override fun open(player: Player) {
-        TODO("Not yet implemented")
+        BackpackGUI(this, player).page(1)
     }
 
-    override fun extraRows() = options["extraRows"] as? Int ?: 0
+    override fun extraRows() = (options["extraRows"] as? Number)?.toInt() ?: 0
 
     override fun metaTool() = BackpackMetaToolImpl(this)
 

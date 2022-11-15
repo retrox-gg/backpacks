@@ -58,7 +58,7 @@ data class Commands(private val plugin: BackpacksPlugin) {
                     // stick the styled item in the backpack
                     backpack as BackpackImpl
                     backpack.items.setItem(0, it)
-                    backpack.options["extraRows"] = 1
+                    backpack.options["extraRows"] = 11
                     backpack.metaTool().apply(it)
                     // TODO: remove after test
                     // Attempt to load from the item
@@ -69,6 +69,11 @@ data class Commands(private val plugin: BackpacksPlugin) {
                             sender.sendMessage("Loaded backpack item: ${entry.value} at ${entry.key}")
                         }
                         sender.sendMessage("Loaded backpack options: ${loadedBackpack.options}")
+//                        sender.sendMessage("extraRows reported as ${loadedBackpack.options["extraRows"]!!::class}") // gson LazilyParsedNumber
+//                        sender.sendMessage("extraRows return: ${loadedBackpack.extraRows()}")
+                        sender.sendMessage("Calculated backpack rows: ${loadedBackpack.rows}")
+                        // Open it
+                        loadedBackpack.open(targetPlayer)
                     }
                 }
             }.also { targetPlayer.inventory.addItem(it) }.also { plugin.logger.info("$it") }

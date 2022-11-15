@@ -33,6 +33,11 @@ object Messages {
         return Rendered { miniMessage.deserialize(string) }
     }
 
+    fun getAsList(@PropertyKey(resourceBundle = "lang.messages") key: String) : List<Rendered> {
+        val string = bundle.getString(key)
+        return string.split("\\n").map { Rendered { miniMessage.deserialize(it) } }
+    }
+
     fun interface Rendered : ComponentLike {
         fun edit(transform: UnaryOperator<Component>): Rendered = Rendered { transform.apply(this.asComponent()) }
         fun send(audience: Audience) = audience.sendMessage(this)

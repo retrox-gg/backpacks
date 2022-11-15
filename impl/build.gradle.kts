@@ -20,6 +20,16 @@ dependencies {
 
 description = "A backpack plugin for RetroX"
 
+kotlin {
+    target {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
+}
+
 tasks.withType<ProcessResources> {
     expand(project.properties)
 }

@@ -19,22 +19,20 @@ import io.github.ms5984.retrox.backpacks.internal.BackpackImpl
 import org.bukkit.entity.Player
 
 data class BackpackGUI(val backpack: BackpackImpl, val player: Player) {
-    private val rows
-        get() = io.github.ms5984.retrox.backpacks.internal.DEFAULT_ROWS + backpack.extraRows()
     val pages
-        get() = rows / MAX_ROWS_DISPLAYED + if (rows % MAX_ROWS_DISPLAYED == 0) 0 else 1
+        get() = backpack.rows / MAX_ROWS_DISPLAYED + if (backpack.rows % MAX_ROWS_DISPLAYED == 0) 0 else 1
 
     /**
      * Render a page of the backpack GUI.
      *
-     * Zero-indexed.
+     * Indexed by natural number (1, 2, 3, ...so on).
      * @param page page to render
      */
     fun page(page: Int) {
-        if (page in 1..pages) {
-            // Last page may have fewer rows
-            Render(this, page, if (page == pages) rows % MAX_ROWS_DISPLAYED else MAX_ROWS_DISPLAYED).open(player)
+        if (page !in 1..pages) {
+            throw IllegalArgumentException("page must be between 1 and $pages")
         }
-        throw IllegalArgumentException("page must be between 1 and $pages")
+        // Last page may have fewer rows
+        Render(this, page, if (page == pages) backpack.rows % MAX_ROWS_DISPLAYED else MAX_ROWS_DISPLAYED).open(player)
     }
 }
