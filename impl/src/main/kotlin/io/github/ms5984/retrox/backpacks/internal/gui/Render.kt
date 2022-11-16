@@ -28,7 +28,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : Listener {
     private val inventory = Bukkit.createInventory(null, (itemRows + 1) * 9, Component.text("Backpack page $page"))
     private val slots: IntRange = (page - 1).let { it * MAX_ITEMS_PER_PAGE until it * itemRows * 9 }
-    private val actions: MutableMap<Int, () -> Unit> = mutableMapOf()
+    private val nav: NavigationRow = NavigationRow(itemRows * 9 until (itemRows + 1) * 9)
 
     init {
         // Setup listener
@@ -37,22 +37,21 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
         gui.backpack.items.items.forEach { (slot, item) -> if (slot in slots) inventory.setItem(slot % MAX_ITEMS_PER_PAGE, item) }
         // Draw navigation
         if (page > 1) { // Previous page
-            // generate + place item
+            // generate
             val prevPageEvent = GUIControlDrawEvent(GUIControl.PREV, GUIControl.PREV.generateControl())
             Bukkit.getPluginManager().callEvent(prevPageEvent)
-            val slot = (itemRows * 9) + prevPageEvent.slot
-            inventory.setItem(slot, prevPageEvent.finalItem)
-            // bind action
-            actions[slot] = ::previous
+            // place item + bind action
+            nav.setItem(prevPageEvent.slot, prevPageEvent.finalItem, ::previous)
         }
         if (page < gui.pages) { // Next page
-            // generate + place item
+            // generate
             val nextPageEvent = GUIControlDrawEvent(GUIControl.NEXT, GUIControl.NEXT.generateControl())
             Bukkit.getPluginManager().callEvent(nextPageEvent)
-            val slot = (itemRows * 9) + nextPageEvent.slot
-            inventory.setItem(slot, nextPageEvent.finalItem)
-            // bind action
-            actions[slot] = ::next
+            // place item + bind action
+            nav.setItem(nextPageEvent.slot, nextPageEvent.finalItem, ::next)
+        }
+        for (i in nav.slots) {
+            inventory.setItem(i, nav.getItem(i % 9))
         }
     }
 
@@ -60,7 +59,7 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
         player.openInventory(inventory)
     }
 
-    fun previous() {
+    private fun previous() {
         if (page == 1) {
             throw IllegalArgumentException("This is the first page")
         }
@@ -68,7 +67,7 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
         release()
     }
 
-    fun next() {
+    private fun next() {
         if (page == gui.pages) {
             throw IllegalArgumentException("This is the last page")
         }
@@ -84,9 +83,9 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
     @EventHandler(ignoreCancelled = true)
     fun onClick(event: InventoryClickEvent) {
         if (event.inventory !== inventory) return
-        actions[event.slot]?.let {
+        if (event.slot in nav.slots) {
             event.isCancelled = true
-            it()
+            nav.handle(event.slot)
         }
     }
 

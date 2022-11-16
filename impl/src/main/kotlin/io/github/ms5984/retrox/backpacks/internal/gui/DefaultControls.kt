@@ -40,3 +40,11 @@ fun GUIControl.generateControl() : ItemStack {
         else -> throw IllegalArgumentException("Unknown control $this")
     }
 }
+
+fun generatePlaceholder() : ItemStack {
+    return ItemStack(Material.PURPLE_STAINED_GLASS_PANE).apply {
+        val meta = itemMeta
+        meta.displayName(Messages.miniMessage.deserialize(""))
+        itemMeta = meta
+    }
+}
