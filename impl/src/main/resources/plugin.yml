@@ -6,6 +6,7 @@ authors: [ ms5984 ]
 description: ${project.description}
 depend: ["Accessories"]
 libraries:
+  - "io.github.ms5984.libraries:tag-lib:${project.tagLibVersion}"
   - "org.jetbrains.kotlin:kotlin-stdlib:${project.kotlinVersion}"
   - "cloud.commandframework:cloud-paper:1.7.1"
   - "cloud.commandframework:cloud-annotations:1.7.1"

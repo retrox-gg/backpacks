@@ -15,33 +15,53 @@ package io.github.ms5984.retrox.backpacks.internal.gui
  *  limitations under the License.
  */
 
+import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import io.github.ms5984.retrox.backpacks.internal.Messages
 import org.bukkit.Material
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
+private fun getControlSection(path: String): ConfigurationSection? =
+    BackpacksPlugin.instance.config.getConfigurationSection("gui.controls.$path")
 
-fun GUIControl.generateControl() : ItemStack {
+private fun ConfigurationSection.getControlMaterial(): Material? {
+    return try {
+        Material.valueOf(getString("material")!!)
+    } catch (e: Exception) {
+        null
+    }
+}
+
+fun GUIControl.generateControl(): ItemStack {
     return when {
         this == GUIControl.PREV -> {
-            ItemStack(Material.RED_CONCRETE).apply {
+            val controlSection = getControlSection("previous-page")
+            ItemStack(controlSection?.getControlMaterial() ?: Material.RED_CONCRETE).apply {
                 val meta = itemMeta
                 meta.displayName(Messages.get("gui.controls.prev.name").asComponent())
                 meta.lore(Messages.getAsList("gui.controls.prev.lore").map { it.asComponent() })
+                controlSection?.getInt("custom-model-data", -1)?.takeIf { it != -1 }
+                    ?.let { meta.setCustomModelData(it) }
                 itemMeta = meta
             }
         }
+
         this == GUIControl.NEXT -> {
-            ItemStack(Material.GREEN_CONCRETE).apply {
+            val controlSection = getControlSection("next-page")
+            ItemStack(controlSection?.getControlMaterial() ?: Material.GREEN_CONCRETE).apply {
                 val meta = itemMeta
                 meta.displayName(Messages.get("gui.controls.next.name").asComponent())
                 meta.lore(Messages.getAsList("gui.controls.next.lore").map { it.asComponent() })
+                controlSection?.getInt("custom-model-data", -1)?.takeIf { it != -1 }
+                    ?.let { meta.setCustomModelData(it) }
                 itemMeta = meta
             }
         }
+
         else -> throw IllegalArgumentException("Unknown control $this")
     }
 }
 
-fun generatePlaceholder() : ItemStack {
+fun generatePlaceholder(): ItemStack {
     return ItemStack(Material.PURPLE_STAINED_GLASS_PANE).apply {
         val meta = itemMeta
         meta.displayName(Messages.miniMessage.deserialize(""))

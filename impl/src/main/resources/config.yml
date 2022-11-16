@@ -1,0 +1,8 @@
+gui:
+  controls:
+    previous-page:
+      material: RED_CONCRETE
+#      custom-model-data: 1 # This format is supported
+    next-page:
+      material: GREEN_CONCRETE
+#      custom-model-data: 1 # This format is supported
