@@ -20,6 +20,7 @@ import io.github.ms5984.retrox.backpacks.internal.Messages
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
+
 private fun getControlSection(path: String): ConfigurationSection? =
     BackpacksPlugin.instance.config.getConfigurationSection("gui.controls.$path")
 
@@ -31,6 +32,12 @@ private fun ConfigurationSection.getControlMaterial(): Material? {
     }
 }
 
+private fun ConfigurationSection.getControlCustomModelData(): Int? {
+    // TODO see why getInt("custom-model-data", -1) doesn't work properly
+    // this works but i can't specify a custom magic value, it has to be 0
+    return getInt("custom-model-data").takeIf { it != 0 }
+}
+
 fun GUIControl.generateControl(): ItemStack {
     return when {
         this == GUIControl.PREV -> {
@@ -39,24 +46,23 @@ fun GUIControl.generateControl(): ItemStack {
                 val meta = itemMeta
                 meta.displayName(Messages.get("gui.controls.prev.name").asComponent())
                 meta.lore(Messages.getAsList("gui.controls.prev.lore").map { it.asComponent() })
-                controlSection?.getInt("custom-model-data", -1)?.takeIf { it != -1 }
-                    ?.let { meta.setCustomModelData(it) }
+                controlSection?.getControlCustomModelData()?.let { meta.setCustomModelData(it) }
                 itemMeta = meta
             }
         }
-
         this == GUIControl.NEXT -> {
             val controlSection = getControlSection("next-page")
             ItemStack(controlSection?.getControlMaterial() ?: Material.GREEN_CONCRETE).apply {
                 val meta = itemMeta
                 meta.displayName(Messages.get("gui.controls.next.name").asComponent())
                 meta.lore(Messages.getAsList("gui.controls.next.lore").map { it.asComponent() })
-                controlSection?.getInt("custom-model-data", -1)?.takeIf { it != -1 }
-                    ?.let { meta.setCustomModelData(it) }
+                controlSection?.getControlCustomModelData()?.let {
+                    meta.setCustomModelData(it)
+                    BackpacksPlugin.instance.logger.info("Setting ${this@generateControl} custom model data to $it")
+                }
                 itemMeta = meta
             }
         }
-
         else -> throw IllegalArgumentException("Unknown control $this")
     }
 }
