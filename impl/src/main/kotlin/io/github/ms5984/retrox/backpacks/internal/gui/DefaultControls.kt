@@ -22,7 +22,7 @@ import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
 import org.jetbrains.annotations.PropertyKey
 
-fun GUIControl.generateControl(): ItemStack {
+fun GUIControl.generateControl(arg: Any? = null): ItemStack {
     return when {
         this == GUIControl.PREV -> loadItem(
             "gui.controls.prev.name",
@@ -42,6 +42,21 @@ fun GUIControl.generateControl(): ItemStack {
             Material.PURPLE_STAINED_GLASS_PANE,
             "close"
         )
+        this == GUIControl.ITEM_COLLECT ->
+            arg.let {
+                if (it !is Boolean) throw IllegalArgumentException("arg must be Boolean. Received $arg")
+                if (arg as Boolean) loadItem(
+                    "gui.controls.itemCollect.isOn.name",
+                    "gui.controls.itemCollect.isOn.lore",
+                    Material.SPAWNER,
+                    "item-collect-is-on"
+                ) else loadItem(
+                    "gui.controls.itemCollect.isOff.name",
+                    "gui.controls.itemCollect.isOff.lore",
+                    Material.TRAPPED_CHEST,
+                    "item-collect-is-off"
+                )
+            }
         else -> throw IllegalArgumentException("Unknown control $this")
     }
 }

@@ -31,16 +31,28 @@ public enum GUIControl {
      */
     PREV(0),
     /**
+     * Configure backpack item collection.
+     */
+    ITEM_COLLECT(4),
+    /**
      * Advance to the next page.
      */
     NEXT(8),
     /**
      * Close the GUI.
+     * <p>
+     * This control is handled specially by the GUI system. It is not drawn in
+     * any particular default slot or slots; rather it is placed after other
+     * controls have been placed to ensure all control row slots are occupied.
      */
-    CLOSE(Set.of(2, 3, 4, 5, 6, 7)),
+    CLOSE(),
     ;
 
     private final Set<Integer> defaultSlots;
+
+    GUIControl() {
+        this(Set.of());
+    }
 
     GUIControl(int defaultSlot) {
         this(Set.of(defaultSlot));

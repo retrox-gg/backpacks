@@ -19,6 +19,7 @@ import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a backpack.
@@ -42,6 +43,17 @@ public interface Backpack {
      */
     default int extraRows() {
         return 0;
+    }
+
+    /**
+     * Check if the backpack supports item collection, and if so,
+     * check if item collect is currently enabled.
+     *
+     * @return {@code null} if item collect is not supported,
+     * {@code true} if enabled, {@code false} if disabled
+     */
+    default @Nullable Boolean itemCollect() {
+        return null;
     }
 
     /**

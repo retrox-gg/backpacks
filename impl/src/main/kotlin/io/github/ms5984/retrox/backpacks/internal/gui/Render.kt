@@ -50,6 +50,15 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
             // place item + bind action
             nextPageEvent.slots.forEach { nav.setItem(it, nextPageEvent.finalItem, ::next) }
         }
+        gui.backpack.itemCollect()?.let { itemCollect -> // Control item collection
+            // generate control
+            val itemCollectEvent = GUIControlDrawEvent(GUIControl.ITEM_COLLECT, GUIControl.ITEM_COLLECT.generateControl(itemCollect))
+            Bukkit.getPluginManager().callEvent(itemCollectEvent)
+            // place item + bind action
+            itemCollectEvent.slots.forEach {
+                nav.setItem(it, itemCollectEvent.finalItem) { setItemCollect(!itemCollect) }
+            }
+        }
         for (i in nav.slots) {
             inventory.setItem(i, nav.getItem(i % 9))
         }
@@ -75,6 +84,12 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
             throw IllegalArgumentException("This is the last page")
         }
         Bukkit.getScheduler().runTask(BackpacksPlugin.instance) { -> gui.page(page + 1) }
+        release()
+    }
+
+    private fun setItemCollect(newState: Boolean) {
+        gui.backpack.options["itemCollect"] = newState
+        Bukkit.getScheduler().runTask(BackpacksPlugin.instance) { -> gui.page(page) }
         release()
     }
 

@@ -61,6 +61,7 @@ data class Commands(private val plugin: BackpacksPlugin) {
                     backpack as BackpackImpl
                     backpack.items.setItem(0, it)
                     backpack.options["extraRows"] = 11
+                    backpack.options["itemCollect"] = false
                     backpack.metaTool().apply(it)
                     // TODO: remove after test
                     // Attempt to load from the item
