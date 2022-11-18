@@ -1,0 +1,9 @@
+gui:
+  controls:
+    previous-page:
+      material: RED_STAINED_GLASS # Testing non-default
+#      custom-model-data: 1 # This format is supported
+    next-page:
+      material: GREEN_STAINED_GLASS # Testing non-default
+    close:
+      material: LIGHT_BLUE_STAINED_GLASS_PANE # Testing non-default

@@ -41,23 +41,35 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
             val prevPageEvent = GUIControlDrawEvent(GUIControl.PREV, GUIControl.PREV.generateControl())
             Bukkit.getPluginManager().callEvent(prevPageEvent)
             // place item + bind action
-            nav.setItem(prevPageEvent.slot, prevPageEvent.finalItem, ::previous)
+            prevPageEvent.slots.forEach { nav.setItem(it, prevPageEvent.finalItem, ::previous) }
         }
         if (page < gui.pages) { // Next page
             // generate
             val nextPageEvent = GUIControlDrawEvent(GUIControl.NEXT, GUIControl.NEXT.generateControl())
             Bukkit.getPluginManager().callEvent(nextPageEvent)
             // place item + bind action
-            nav.setItem(nextPageEvent.slot, nextPageEvent.finalItem, ::next)
+            nextPageEvent.slots.forEach { nav.setItem(it, nextPageEvent.finalItem, ::next) }
+        }
+        gui.backpack.itemCollect()?.let { itemCollect -> // Control item collection
+            // generate control
+            val itemCollectEvent = GUIControlDrawEvent(GUIControl.ITEM_COLLECT, GUIControl.ITEM_COLLECT.generateControl(itemCollect))
+            Bukkit.getPluginManager().callEvent(itemCollectEvent)
+            // place item + bind action
+            itemCollectEvent.slots.forEach {
+                nav.setItem(it, itemCollectEvent.finalItem) { setItemCollect(!itemCollect) }
+            }
         }
         for (i in nav.slots) {
             inventory.setItem(i, nav.getItem(i % 9))
         }
     }
 
-    fun open(player: Player) {
-        player.openInventory(inventory)
-    }
+    fun open(player: Player) = player.openInventory(inventory)
+
+    private fun closeSoon(player: Player) =
+        player.openInventory.takeIf { it.topInventory == inventory }?.run {
+            Bukkit.getScheduler().runTask(BackpacksPlugin.instance, ::close)
+        }
 
     private fun previous() {
         if (page == 1) {
@@ -75,6 +87,12 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
         release()
     }
 
+    private fun setItemCollect(newState: Boolean) {
+        gui.backpack.options["itemCollect"] = newState
+        Bukkit.getScheduler().runTask(BackpacksPlugin.instance) { -> gui.page(page) }
+        release()
+    }
+
     @EventHandler
     fun releaseOnClose(event: InventoryCloseEvent) {
         if (event.inventory === inventory) release()
@@ -85,7 +103,7 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
         if (event.inventory !== inventory) return
         if (event.slot in nav.slots) {
             event.isCancelled = true
-            nav.handle(event.slot)
+            nav.handle(event.slot) ?: closeSoon(event.whoClicked as Player)
         }
     }
 

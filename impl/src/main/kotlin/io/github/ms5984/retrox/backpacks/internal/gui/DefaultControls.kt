@@ -15,36 +15,73 @@ package io.github.ms5984.retrox.backpacks.internal.gui
  *  limitations under the License.
  */
 
+import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import io.github.ms5984.retrox.backpacks.internal.Messages
 import org.bukkit.Material
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
+import org.jetbrains.annotations.PropertyKey
 
-fun GUIControl.generateControl() : ItemStack {
+fun GUIControl.generateControl(arg: Any? = null): ItemStack {
     return when {
-        this == GUIControl.PREV -> {
-            ItemStack(Material.RED_CONCRETE).apply {
-                val meta = itemMeta
-                meta.displayName(Messages.get("gui.controls.prev.name").asComponent())
-                meta.lore(Messages.getAsList("gui.controls.prev.lore").map { it.asComponent() })
-                itemMeta = meta
+        this == GUIControl.PREV -> loadItem(
+            "gui.controls.prev.name",
+            "gui.controls.prev.lore",
+            Material.RED_CONCRETE,
+            "previous-page"
+        )
+        this == GUIControl.NEXT -> loadItem(
+            "gui.controls.next.name",
+            "gui.controls.next.lore",
+            Material.GREEN_CONCRETE,
+            "next-page"
+        )
+        this == GUIControl.CLOSE -> loadItem(
+            "gui.controls.close.name",
+            "gui.controls.close.lore",
+            Material.PURPLE_STAINED_GLASS_PANE,
+            "close"
+        )
+        this == GUIControl.ITEM_COLLECT ->
+            arg.let {
+                if (it !is Boolean) throw IllegalArgumentException("arg must be Boolean. Received $arg")
+                if (arg as Boolean) loadItem(
+                    "gui.controls.itemCollect.isOn.name",
+                    "gui.controls.itemCollect.isOn.lore",
+                    Material.SPAWNER,
+                    "item-collect-is-on"
+                ) else loadItem(
+                    "gui.controls.itemCollect.isOff.name",
+                    "gui.controls.itemCollect.isOff.lore",
+                    Material.TRAPPED_CHEST,
+                    "item-collect-is-off"
+                )
             }
-        }
-        this == GUIControl.NEXT -> {
-            ItemStack(Material.GREEN_CONCRETE).apply {
-                val meta = itemMeta
-                meta.displayName(Messages.get("gui.controls.next.name").asComponent())
-                meta.lore(Messages.getAsList("gui.controls.next.lore").map { it.asComponent() })
-                itemMeta = meta
-            }
-        }
         else -> throw IllegalArgumentException("Unknown control $this")
     }
 }
 
-fun generatePlaceholder() : ItemStack {
-    return ItemStack(Material.PURPLE_STAINED_GLASS_PANE).apply {
-        val meta = itemMeta
-        meta.displayName(Messages.miniMessage.deserialize(""))
-        itemMeta = meta
+private fun loadItem(
+    @PropertyKey(resourceBundle = "lang.messages") name: String,
+    @PropertyKey(resourceBundle = "lang.messages") lore: String,
+    defaultMaterial: Material,
+    section: String
+): ItemStack =
+    getControlSection(section).let { controlSection ->
+        ItemStack(controlSection?.getControlMaterial() ?: defaultMaterial).apply {
+            itemMeta = itemMeta.apply {
+                displayName(Messages.get(name).asComponent())
+                lore(Messages.getAsList(lore).map { it.asComponent() })
+                controlSection?.getControlCustomModelData()?.let { setCustomModelData(it) }
+            }
+        }
     }
-}
+
+private fun getControlSection(path: String): ConfigurationSection? =
+    BackpacksPlugin.instance.config.getConfigurationSection("gui.controls.$path")
+
+private fun ConfigurationSection.getControlMaterial(): Material? =
+    getString("material")?.let { Material.matchMaterial(it) }
+
+private fun ConfigurationSection.getControlCustomModelData(): Int? =
+    getInt("custom-model-data").takeIf { it != 0 }

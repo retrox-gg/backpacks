@@ -31,6 +31,8 @@ data class BackpackImpl(val items: StoredItems = StoredItems(), val options: Mut
 
     override fun extraRows() = (options["extraRows"] as? Number)?.toInt() ?: 0
 
+    override fun itemCollect() = options["itemCollect"] as? Boolean
+
     override fun metaTool() = BackpackMetaToolImpl(this)
 
     override fun copy() = BackpackImpl(StoredItems(items), options.toMutableMap())

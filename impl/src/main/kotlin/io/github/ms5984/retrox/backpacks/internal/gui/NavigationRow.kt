@@ -20,7 +20,7 @@ import org.bukkit.inventory.ItemStack
 data class NavigationRow(val slots: IntRange) {
     private val items = arrayOfNulls<ItemStack>(9)
     private val actions: MutableMap<Int, () -> Unit> = mutableMapOf()
-    private val placeholder by lazy { generatePlaceholder() }
+    private val placeholder by lazy { GUIControl.CLOSE.generateControl() }
 
     // expected slot [0-9)
     fun setItem(slot: Int, control: ItemStack?, action: (() -> Unit)? = null) {
@@ -34,7 +34,6 @@ data class NavigationRow(val slots: IntRange) {
     }
 
     // slot normalized
-    fun handle(slot: Int) {
-        actions[slot % 9]?.let { it() }
-    }
+    fun handle(slot: Int): (() -> Unit)? =
+        actions[slot % 9]?.also { it() }
 }
