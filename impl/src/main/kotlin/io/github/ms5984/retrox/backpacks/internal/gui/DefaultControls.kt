@@ -20,57 +20,53 @@ import io.github.ms5984.retrox.backpacks.internal.Messages
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
-
-private fun getControlSection(path: String): ConfigurationSection? =
-    BackpacksPlugin.instance.config.getConfigurationSection("gui.controls.$path")
-
-private fun ConfigurationSection.getControlMaterial(): Material? {
-    return try {
-        Material.valueOf(getString("material")!!)
-    } catch (e: Exception) {
-        null
-    }
-}
-
-private fun ConfigurationSection.getControlCustomModelData(): Int? {
-    // TODO see why getInt("custom-model-data", -1) doesn't work properly
-    // this works but i can't specify a custom magic value, it has to be 0
-    return getInt("custom-model-data").takeIf { it != 0 }
-}
+import org.jetbrains.annotations.PropertyKey
 
 fun GUIControl.generateControl(): ItemStack {
     return when {
-        this == GUIControl.PREV -> {
-            val controlSection = getControlSection("previous-page")
-            ItemStack(controlSection?.getControlMaterial() ?: Material.RED_CONCRETE).apply {
-                val meta = itemMeta
-                meta.displayName(Messages.get("gui.controls.prev.name").asComponent())
-                meta.lore(Messages.getAsList("gui.controls.prev.lore").map { it.asComponent() })
-                controlSection?.getControlCustomModelData()?.let { meta.setCustomModelData(it) }
-                itemMeta = meta
-            }
-        }
-        this == GUIControl.NEXT -> {
-            val controlSection = getControlSection("next-page")
-            ItemStack(controlSection?.getControlMaterial() ?: Material.GREEN_CONCRETE).apply {
-                val meta = itemMeta
-                meta.displayName(Messages.get("gui.controls.next.name").asComponent())
-                meta.lore(Messages.getAsList("gui.controls.next.lore").map { it.asComponent() })
-                controlSection?.getControlCustomModelData()?.let {
-                    meta.setCustomModelData(it)
-                    BackpacksPlugin.instance.logger.info("Setting ${this@generateControl} custom model data to $it")
-                }
-                itemMeta = meta
-            }
-        }
+        this == GUIControl.PREV -> loadItem(
+            "gui.controls.prev.name",
+            "gui.controls.prev.lore",
+            Material.RED_CONCRETE,
+            "previous-page"
+        )
+        this == GUIControl.NEXT -> loadItem(
+            "gui.controls.next.name",
+            "gui.controls.next.lore",
+            Material.GREEN_CONCRETE,
+            "next-page"
+        )
+        this == GUIControl.CLOSE -> loadItem(
+            "gui.controls.close.name",
+            "gui.controls.close.lore",
+            Material.PURPLE_STAINED_GLASS_PANE,
+            "close"
+        )
         else -> throw IllegalArgumentException("Unknown control $this")
     }
 }
 
-fun generatePlaceholder(): ItemStack {
-    return ItemStack(Material.PURPLE_STAINED_GLASS_PANE).apply {
-        val meta = itemMeta
-        meta.displayName(Messages.miniMessage.deserialize(""))
-        itemMeta = meta
+private fun loadItem(
+    @PropertyKey(resourceBundle = "lang.messages") name: String,
+    @PropertyKey(resourceBundle = "lang.messages") lore: String,
+    defaultMaterial: Material,
+    section: String
+): ItemStack =
+    getControlSection(section).let { controlSection ->
+        ItemStack(controlSection?.getControlMaterial() ?: defaultMaterial).apply {
+            itemMeta = itemMeta.apply {
+                displayName(Messages.get(name).asComponent())
+                lore(Messages.getAsList(lore).map { it.asComponent() })
+                controlSection?.getControlCustomModelData()?.let { setCustomModelData(it) }
+            }
+        }
     }
-}
+
+private fun getControlSection(path: String): ConfigurationSection? =
+    BackpacksPlugin.instance.config.getConfigurationSection("gui.controls.$path")
+
+private fun ConfigurationSection.getControlMaterial(): Material? =
+    getString("material")?.let { Material.matchMaterial(it) }
+
+private fun ConfigurationSection.getControlCustomModelData(): Int? =
+    getInt("custom-model-data").takeIf { it != 0 }

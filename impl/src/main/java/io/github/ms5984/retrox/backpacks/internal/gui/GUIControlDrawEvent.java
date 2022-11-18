@@ -22,6 +22,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * Called when a GUI control is being drawn.
  *
@@ -33,7 +36,7 @@ public final class GUIControlDrawEvent extends Event {
     private static final HandlerList HANDLERS = new HandlerList(); // for Event contract
     final GUIControl type;
     private ItemStack finalItem;
-    private @Nullable Integer customSlot;
+    private @Nullable Set<Integer> customSlots;
 
     /**
      * Create a new GUI control draw event.
@@ -77,41 +80,38 @@ public final class GUIControlDrawEvent extends Event {
     }
 
     /**
-     * Get the alternate slot this control will be placed in.
-     * <p>
-     * If null, the default slot will be used (see
-     * {@link GUIControl#getDefaultSlot()}).
+     * Get the alternate slots this control will be placed in, if defined.
      *
-     * @return an alternate slot or null
+     * @return an Optional describing the alternate slots if present
      */
-    public @Nullable Integer getCustomSlot() {
-        return customSlot;
+    public @NotNull Optional<Set<Integer>> getCustomSlots() {
+        return Optional.ofNullable(customSlots);
     }
 
     /**
-     * Set the alternate slot this control will be placed in.
+     * Set the alternate slot or slots this control will be placed in.
      * <p>
-     * If {@code customSlot} is null the default slot will be used (see
-     * {@link GUIControl#getDefaultSlot()}).
+     * If {@code customSlots} is null default slots will be used
+     * (see {@link GUIControl#getDefaultSlots()}).
      *
-     * @param customSlot an alternate slot or null
+     * @param customSlots a set of alternate slots or null
      * @return this event
      */
-    public GUIControlDrawEvent setCustomSlot(@Nullable Integer customSlot) {
-        this.customSlot = customSlot;
+    public GUIControlDrawEvent setCustomSlots(@Nullable Set<@NotNull Integer> customSlots) {
+        this.customSlots = (customSlots != null) ? Set.copyOf(customSlots) : null;
         return this;
     }
 
     /**
-     * Get the final slot this control will be placed in.
+     * Get the final slot or slots this control will be placed in.
      * <p>
-     * If {@link #getCustomSlot()} is null, this method will return the default
-     * slot as defined by {@link #getType()}.
+     * If {@link #getCustomSlots()} is empty this method will return the
+     * defaults as defined by {@link #getType()}.
      *
-     * @return the final slot
+     * @return the final set of slots
      */
-    public int getSlot() {
-        return customSlot == null ? type.getDefaultSlot() : customSlot;
+    public @NotNull Set<Integer> getSlots() {
+        return getCustomSlots().orElseGet(type::getDefaultSlots);
     }
 
     // required by Event contract

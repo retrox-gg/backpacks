@@ -15,7 +15,9 @@ package io.github.ms5984.retrox.backpacks.internal.gui;
  *  limitations under the License.
  */
 
-import org.jetbrains.annotations.Range;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 /**
  * Represents a GUI control.
@@ -32,22 +34,30 @@ public enum GUIControl {
      * Advance to the next page.
      */
     NEXT(8),
+    /**
+     * Close the GUI.
+     */
+    CLOSE(Set.of(2, 3, 4, 5, 6, 7)),
     ;
 
-    private final int defaultSlot;
+    private final Set<Integer> defaultSlots;
 
     GUIControl(int defaultSlot) {
-        this.defaultSlot = defaultSlot;
+        this(Set.of(defaultSlot));
+    }
+
+    GUIControl(Set<@NotNull Integer> defaultSlots) {
+        this.defaultSlots = Set.copyOf(defaultSlots);
     }
 
     /**
-     * Get the default slot this control is drawn in.
+     * Get the default slot or slots this control is drawn in.
      * <p>
-     * This index is relative to the bottom row of the GUI.
+     * Each index is relative to the bottom row of the GUI.
      *
-     * @return the slot where this control will be drawn
+     * @return the slot or slots where this control will be drawn
      */
-    public @Range(from = 0, to = 8) int getDefaultSlot() {
-        return defaultSlot;
+    public @NotNull Set<@NotNull Integer> getDefaultSlots() {
+        return defaultSlots;
     }
 }
