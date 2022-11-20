@@ -1,9 +1,50 @@
+## Define presets TODO API
+#
+# `give-backpack` is a special preset which will be used
+# when the give subcommand is used
+#
+# Other notes:
+# `displayName` and `lore` fields are preprocessed internally to override the
+# vanilla styles of display name (disable italics) and lore (disable italics,
+# set text color to white).
+#
+# Format (nodes in square brackets are optional):
+## presets:
+##   <preset_name>:
+##     rows: <number_of_rows>            # Must be as least 1
+##     [itemCollection]: <has_feature>   # Defaults to false. Regardless of whether a backpack has this feature it is always off when first created.
+##     material: <material>
+##     [model-data]: <custom_model_data> # Unset by default. 0 is ignored.
+##     [displayName]: <display_name>     # Defaults to "Backpack"
+##     [lore]:                           # Defaults to empty
+##       - <line1>
+##       - <line2>
+##       - ...so on
+presets:
+  give-backpack:
+    rows: 1
+    material: CHEST
+    model-data: 1001
+    displayName: "<bold>Backpack"
+    lore:
+      - "<gray>Right click to open"
+
+# Configure the GUI
+#
+# See lang/messages.properties
+#
+# Format (nodes in square brackets are optional):
+## gui:
+##   controls:
+##     <control_name>:
+##       [material]: <material>            # Override the default hardcoded material
+##       [model-data]: <custom_model_data> # Default is no custom model data
 gui:
   controls:
-    previous-page:
+    prev:
       material: RED_STAINED_GLASS # Testing non-default
-#      custom-model-data: 1 # This format is supported
-    next-page:
+#      model-data: 1 # This format is supported
+    next:
       material: GREEN_STAINED_GLASS # Testing non-default
     close:
       material: LIGHT_BLUE_STAINED_GLASS_PANE # Testing non-default

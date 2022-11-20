@@ -15,6 +15,7 @@ package io.github.ms5984.retrox.backpacks.internal
  *  limitations under the License.
  */
 
+import io.github.ms5984.commonlib.taglib.TagLib
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.ComponentLike
@@ -22,24 +23,29 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Bukkit
 import org.jetbrains.annotations.PropertyKey
 import java.util.PropertyResourceBundle
-import java.util.function.UnaryOperator
 
 object Messages {
     private val bundle = PropertyResourceBundle.getBundle("lang/messages")
     val miniMessage = MiniMessage.miniMessage()
 
-    fun get(@PropertyKey(resourceBundle = "lang.messages") key: String) : Rendered {
-        val string = bundle.getString(key)
-        return Rendered { miniMessage.deserialize(string) }
+    fun get(@PropertyKey(resourceBundle = "lang.messages") key: String): LangString =
+        LangString(key)
+
+    fun getAsList(@PropertyKey(resourceBundle = "lang.messages") key: String): List<Chaining> =
+        LangString(key).splitOnNewlines()
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    sealed class Raw(val text: String) : Rendered {
+        override fun asComponent() = miniMessage.deserialize(text)
+        fun splitOnNewlines(): List<Chaining> = text.split("\\n").map { Chaining(it) }
+        fun asDisplayName(): Component = miniMessage.deserialize(TagLib.ampersand(text).displayNameOverride())
+        fun asLoreLine(): Component = miniMessage.deserialize(TagLib.ampersand(text).loreLineOverride())
     }
 
-    fun getAsList(@PropertyKey(resourceBundle = "lang.messages") key: String) : List<Rendered> {
-        val string = bundle.getString(key)
-        return string.split("\\n").map { Rendered { miniMessage.deserialize(it) } }
-    }
+    class Chaining(text: String) : Raw(text)
+    class LangString(@PropertyKey(resourceBundle = "lang.messages") val key: String) : Raw(bundle.getString(key))
 
     fun interface Rendered : ComponentLike {
-        fun edit(transform: UnaryOperator<Component>): Rendered = Rendered { transform.apply(this.asComponent()) }
         fun send(audience: Audience) = audience.sendMessage(this)
         fun sendConsole() = Bukkit.getConsoleSender().sendMessage(this)
     }

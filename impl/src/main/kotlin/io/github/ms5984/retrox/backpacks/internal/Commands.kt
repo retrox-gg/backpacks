@@ -19,14 +19,9 @@ import cloud.commandframework.annotations.*
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.meta.SimpleCommandMeta
 import cloud.commandframework.paper.PaperCommandManager
-import io.github.ms5984.retrox.accessories.api.AccessoryService
 import io.github.ms5984.retrox.backpacks.api.BackpackService
-import io.github.ms5984.retrox.backpacks.internal.gui.GUIControl
-import io.github.ms5984.retrox.backpacks.internal.gui.generateControl
-import org.bukkit.Material
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import org.jetbrains.annotations.Nullable
 
 private const val PERMISSION_ROOT = "backpacks"
@@ -36,6 +31,9 @@ data class Commands(private val plugin: BackpacksPlugin) {
         plugin,
         CommandExecutionCoordinator.simpleCoordinator()
     )
+    private val givePreset by lazy {
+        Preset.fromConfig(plugin.config.getConfigurationSection("presets.give-backpack")!!)
+    }
 
     fun initCommands() {
         AnnotationParser(manager, CommandSender::class.java) { SimpleCommandMeta.empty() }.parse(this)
@@ -47,41 +45,11 @@ data class Commands(private val plugin: BackpacksPlugin) {
     fun giveCommand(sender: CommandSender, @Argument("player") @Nullable player: Player?) {
         val target = player ?: sender as? Player
         target?.let { targetPlayer ->
-            // TODO: make proper backpack item
-            ItemStack(Material.ACACIA_BOAT).also {
-                it.editMeta { meta ->
-                    meta.displayName(Messages.miniMessage.deserialize("<aqua>Backpack"))
-                    meta.lore(listOf(Messages.miniMessage.deserialize("<!i><white>I'm gonna store items someday!!")))
-                }
-                // apply backpack category
-                AccessoryService.getInstance().addNBT(it) { "backpack" } // TODO: this is a hack, i need to fix categories
-                // apply backpack
-                BackpackService.getInstance().create().also { backpack ->
-                    // stick the styled item in the backpack
-                    backpack as BackpackImpl
-                    backpack.items.setItem(0, it)
-                    backpack.options["extraRows"] = 11
-                    backpack.options["itemCollect"] = false
-                    backpack.metaTool().apply(it)
-                    // TODO: remove after test
-                    // Attempt to load from the item
-                    BackpackService.getInstance().loadFromItem(it)!!.let { loadedBackpack ->
-                        loadedBackpack as BackpackImpl
-                        // Report the loaded backpack
-                        loadedBackpack.items.items.forEach { entry ->
-                            sender.sendMessage("Loaded backpack item: ${entry.value} at ${entry.key}")
-                        }
-                        sender.sendMessage("Loaded backpack options: ${loadedBackpack.options}")
-//                        sender.sendMessage("extraRows reported as ${loadedBackpack.options["extraRows"]!!::class}") // gson LazilyParsedNumber
-//                        sender.sendMessage("extraRows return: ${loadedBackpack.extraRows()}")
-                        sender.sendMessage("Calculated backpack rows: ${loadedBackpack.rows}")
-                        // Open it
-                        loadedBackpack.open(targetPlayer)
-                    }
-                }
-            }.also { targetPlayer.inventory.addItem(it) }.also { plugin.logger.info("$it") }
-            // give control item to check meta using /data
-            targetPlayer.inventory.addItem(GUIControl.NEXT.generateControl())
+            val loadedBackpack = givePreset.item
+                .also { targetPlayer.inventory.addItem(it) }
+                .also { plugin.logger.info("$it") }
+                .let { BackpackService.getInstance().loadFromItem(it) }
+            loadedBackpack!!.open(targetPlayer)
             return
         }
         Messages.get("fail.command.target.playerOrSelf").send(sender)
