@@ -31,9 +31,6 @@ data class Commands(private val plugin: BackpacksPlugin) {
         plugin,
         CommandExecutionCoordinator.simpleCoordinator()
     )
-    private val givePreset by lazy {
-        Preset.fromConfig(plugin.config.getConfigurationSection("presets.give-backpack")!!)
-    }
 
     fun initCommands() {
         AnnotationParser(manager, CommandSender::class.java) { SimpleCommandMeta.empty() }.parse(this)
@@ -45,7 +42,7 @@ data class Commands(private val plugin: BackpacksPlugin) {
     fun giveCommand(sender: CommandSender, @Argument("player") @Nullable player: Player?) {
         val target = player ?: sender as? Player
         target?.let { targetPlayer ->
-            val loadedBackpack = givePreset.item
+            val loadedBackpack = plugin.givePreset.item
                 .also { targetPlayer.inventory.addItem(it) }
                 .also { plugin.logger.info("$it") }
                 .let { BackpackService.getInstance().loadFromItem(it) }

@@ -48,3 +48,6 @@ gui:
       material: GREEN_STAINED_GLASS # Testing non-default
     close:
       material: LIGHT_BLUE_STAINED_GLASS_PANE # Testing non-default
+
+# The version of the plugin that generated this file
+config-version: ${project.version}
