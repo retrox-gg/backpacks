@@ -27,20 +27,17 @@ fun GUIControl.generateControl(arg: Any? = null): ItemStack {
         this == GUIControl.PREV -> loadItem(
             "gui.controls.prev.name",
             "gui.controls.prev.lore",
-            Material.RED_CONCRETE,
-            "previous-page"
+            Material.RED_CONCRETE
         )
         this == GUIControl.NEXT -> loadItem(
             "gui.controls.next.name",
             "gui.controls.next.lore",
-            Material.GREEN_CONCRETE,
-            "next-page"
+            Material.GREEN_CONCRETE
         )
         this == GUIControl.CLOSE -> loadItem(
             "gui.controls.close.name",
             "gui.controls.close.lore",
-            Material.PURPLE_STAINED_GLASS_PANE,
-            "close"
+            Material.PURPLE_STAINED_GLASS_PANE
         )
         this == GUIControl.ITEM_COLLECT ->
             arg.let {
@@ -61,6 +58,12 @@ fun GUIControl.generateControl(arg: Any? = null): ItemStack {
     }
 }
 
+private fun GUIControl.loadItem(
+    @PropertyKey(resourceBundle = "lang.messages") name: String,
+    @PropertyKey(resourceBundle = "lang.messages") lore: String,
+    defaultMaterial: Material
+): ItemStack = loadItem(name, lore, defaultMaterial, this.name.lowercase())
+
 private fun loadItem(
     @PropertyKey(resourceBundle = "lang.messages") name: String,
     @PropertyKey(resourceBundle = "lang.messages") lore: String,
@@ -70,8 +73,8 @@ private fun loadItem(
     getControlSection(section).let { controlSection ->
         ItemStack(controlSection?.getControlMaterial() ?: defaultMaterial).apply {
             itemMeta = itemMeta.apply {
-                displayName(Messages.get(name).asComponent())
-                lore(Messages.getAsList(lore).map { it.asComponent() })
+                displayName(Messages.get(name).asDisplayName())
+                lore(Messages.getAsList(lore).map { it.asLoreLine() })
                 controlSection?.getControlCustomModelData()?.let { setCustomModelData(it) }
             }
         }
@@ -84,4 +87,4 @@ private fun ConfigurationSection.getControlMaterial(): Material? =
     getString("material")?.let { Material.matchMaterial(it) }
 
 private fun ConfigurationSection.getControlCustomModelData(): Int? =
-    getInt("custom-model-data").takeIf { it != 0 }
+    getInt("model-data").takeIf { it != 0 }

@@ -43,12 +43,22 @@ class BackpacksPlugin : JavaPlugin() {
      * The [STRING] type is used.
      */
     val optionsKey = NamespacedKey(this, "options")
+    lateinit var givePreset: Preset
+        private set
     private val backpackService = BackpackServiceImpl(this)
 
     override fun onEnable() {
         // Plugin startup logic
         instance = this
+        // Save default config
+        saveDefaultConfig()
+        // Preload config (ensure defaults loaded from jar)
+        config
+        // Load `give-backpack` preset
+        givePreset = Preset.fromConfig(config.getConfigurationSection("presets.give-backpack")!!)
+        // Register service
         Bukkit.getServicesManager().register(BackpackService::class.java, backpackService, this, Normal)
+        // Register commands
         Commands(this).initCommands()
     }
 
