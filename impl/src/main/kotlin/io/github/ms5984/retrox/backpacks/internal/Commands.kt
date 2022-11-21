@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable
 
 private const val PERMISSION_ROOT = "backpacks"
 
-data class Commands(private val plugin: BackpacksPlugin) {
+class Commands(private val plugin: BackpacksPlugin) {
     private val manager = PaperCommandManager.createNative(
         plugin,
         CommandExecutionCoordinator.simpleCoordinator()

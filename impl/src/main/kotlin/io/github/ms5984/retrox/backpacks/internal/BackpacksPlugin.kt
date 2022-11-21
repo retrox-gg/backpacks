@@ -16,8 +16,8 @@ package io.github.ms5984.retrox.backpacks.internal
  */
 
 import io.github.ms5984.retrox.backpacks.api.BackpackService
-import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
+import org.bukkit.event.HandlerList
 import org.bukkit.persistence.PersistentDataType.STRING
 import org.bukkit.plugin.ServicePriority.Normal
 import org.bukkit.plugin.java.JavaPlugin
@@ -46,6 +46,7 @@ class BackpacksPlugin : JavaPlugin() {
     lateinit var givePreset: Preset
         private set
     private val backpackService = BackpackServiceImpl(this)
+    private val bukkitEventProcessor = BukkitEventProcessor(this)
 
     override fun onEnable() {
         // Plugin startup logic
@@ -57,13 +58,19 @@ class BackpacksPlugin : JavaPlugin() {
         // Load `give-backpack` preset
         givePreset = Preset.fromConfig(config.getConfigurationSection("presets.give-backpack")!!)
         // Register service
-        Bukkit.getServicesManager().register(BackpackService::class.java, backpackService, this, Normal)
+        server.servicesManager.register(BackpackService::class.java, backpackService, this, Normal)
         // Register commands
         Commands(this).initCommands()
+        // Register event processing
+        server.pluginManager.registerEvents(bukkitEventProcessor, this)
     }
 
     override fun onDisable() {
         // Plugin shutdown logic
+        // Unregister event processing
+        HandlerList.unregisterAll(bukkitEventProcessor)
+        // Unregister service
+        server.servicesManager.unregister(backpackService)
     }
 
     companion object {
