@@ -3,7 +3,8 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id("backpacks-conventions")
+    id("backpacks.java-conventions")
+    id("backpacks.publish-conventions")
     kotlin("jvm") version "1.7.20"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
@@ -35,6 +36,7 @@ tasks.withType<ProcessResources> {
 }
 
 tasks.withType<ShadowJar> {
+    archiveFileName.set("${rootProject.name}-plugin-${project.version}.jar")
     archiveClassifier.set("plugin")
     dependencies {
         include(project(":api"))

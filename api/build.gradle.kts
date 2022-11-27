@@ -1,5 +1,6 @@
 plugins {
-    id("backpacks-conventions")
+    id("backpacks.java-conventions")
+    id("backpacks.publish-conventions")
     `java-library`
 }
 
