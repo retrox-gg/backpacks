@@ -15,6 +15,7 @@ package io.github.ms5984.retrox.backpacks.internal.gui
  *  limitations under the License.
  */
 
+import io.github.ms5984.retrox.backpacks.api.BackpackService
 import io.github.ms5984.retrox.backpacks.internal.BackpacksPlugin
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
@@ -22,6 +23,8 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryAction.*
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 
@@ -104,6 +107,31 @@ data class Render(val gui: BackpackGUI, val page: Int, val itemRows: Int) : List
         if (event.slot in nav.slots) {
             event.isCancelled = true
             nav.handle(event.slot) ?: closeSoon(event.whoClicked as Player)
+        }
+    }
+
+    // Prevent moving this or other backpacks into this inventory
+    @EventHandler(ignoreCancelled = true)
+    fun onMoveBackpackToOtherInventory(event: InventoryClickEvent) {
+        when {
+            // handle placement/swap into this inventory
+            when (event.action) {
+                PLACE_ALL, PLACE_ONE, PLACE_SOME, SWAP_WITH_CURSOR -> event.clickedInventory === inventory
+                else -> false
+            } -> event.cursor
+            // handle shift-clicks on bottom inventory
+            event.isShiftClick && event.clickedInventory === event.view.bottomInventory -> event.currentItem
+            // handle hotbar-type "hover clicks" on top (backpack render) inventory
+            event.click == ClickType.NUMBER_KEY && event.clickedInventory === inventory -> {
+                // get the item in the hotbar slot
+                event.view.bottomInventory.getItem(event.hotbarButton)
+            }
+            else -> null
+        }?.apply {
+            // cancel if the item is a backpack
+            takeIf { BackpackService.getInstance().test(it) }?.let {
+                event.isCancelled = true
+            }
         }
     }
 
