@@ -8,5 +8,5 @@ depend: ["Accessories"]
 libraries:
   - "io.github.ms5984.libraries:tag-lib:${project.tagLibVersion}"
   - "org.jetbrains.kotlin:kotlin-stdlib:${project.kotlinVersion}"
-  - "cloud.commandframework:cloud-paper:1.7.1"
-  - "cloud.commandframework:cloud-annotations:1.7.1"
+  - "cloud.commandframework:cloud-paper:${project.cloudVersion}"
+  - "cloud.commandframework:cloud-annotations:${project.cloudVersion}"

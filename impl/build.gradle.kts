@@ -10,13 +10,14 @@ plugins {
 }
 
 val kotlinVersion by extra(kotlin.coreLibrariesVersion)
+val cloudVersion by extra("1.8.0")
 
 dependencies {
     api(project(":api"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("cloud.commandframework", "cloud-paper", "1.7.1")
-    implementation("cloud.commandframework:cloud-annotations:1.7.1")
-    annotationProcessor("cloud.commandframework:cloud-annotations:1.7.1")
+    implementation("cloud.commandframework", "cloud-paper", cloudVersion)
+    implementation("cloud.commandframework:cloud-annotations:$cloudVersion")
+    annotationProcessor("cloud.commandframework:cloud-annotations:$cloudVersion")
 }
 
 description = "A backpack plugin for RetroX"

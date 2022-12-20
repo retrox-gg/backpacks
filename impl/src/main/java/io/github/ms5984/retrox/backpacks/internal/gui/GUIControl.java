@@ -27,19 +27,19 @@ import java.util.Set;
  */
 public enum GUIControl {
     /**
-     * Return to the previous page.
+     * Returns to the previous page.
      */
     PREV(0),
     /**
-     * Configure backpack item collection.
+     * Configures backpack item collection.
      */
     ITEM_COLLECT(4),
     /**
-     * Advance to the next page.
+     * Advances to the next page.
      */
     NEXT(8),
     /**
-     * Close the GUI.
+     * Closes the GUI.
      * <p>
      * This control is handled specially by the GUI system. It is not drawn in
      * any particular default slot or slots; rather it is placed after other
@@ -63,7 +63,7 @@ public enum GUIControl {
     }
 
     /**
-     * Get the default slot or slots this control is drawn in.
+     * Gets the default slot or slots this control is drawn in.
      * <p>
      * Each index is relative to the bottom row of the GUI.
      *

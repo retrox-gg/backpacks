@@ -23,10 +23,10 @@ data class BackpackGUI(val backpack: BackpackImpl, val player: Player, val onClo
         get() = backpack.rows / MAX_ROWS_DISPLAYED + if (backpack.rows % MAX_ROWS_DISPLAYED == 0) 0 else 1
 
     /**
-     * Render a page of the backpack GUI.
+     * Renders a page of the backpack GUI.
      *
      * Indexed by natural number (1, 2, 3, ...so on).
-     * @param page page to render
+     * @param page the page to render
      */
     fun page(page: Int) {
         if (page !in 1..pages) {

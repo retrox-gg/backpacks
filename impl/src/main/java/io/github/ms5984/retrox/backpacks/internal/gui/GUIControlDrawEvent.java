@@ -39,7 +39,7 @@ public final class GUIControlDrawEvent extends Event {
     private @Nullable Set<Integer> customSlots;
 
     /**
-     * Create a new GUI control draw event.
+     * Creates a new GUI control draw event.
      *
      * @param type the type of control being drawn
      * @param item an item representing the control
@@ -51,7 +51,7 @@ public final class GUIControlDrawEvent extends Event {
     }
 
     /**
-     * Get the type of control being drawn.
+     * Gets the type of control being drawn.
      *
      * @return the type of control
      */
@@ -60,7 +60,7 @@ public final class GUIControlDrawEvent extends Event {
     }
 
     /**
-     * Get the item placed for this control.
+     * Gets the item placed for this control.
      *
      * @return the item that will be placed
      */
@@ -69,7 +69,7 @@ public final class GUIControlDrawEvent extends Event {
     }
 
     /**
-     * Set the item placed for this control.
+     * Sets the item placed for this control.
      *
      * @param finalItem the item that will be placed
      * @return this event
@@ -80,7 +80,7 @@ public final class GUIControlDrawEvent extends Event {
     }
 
     /**
-     * Get the alternate slots this control will be placed in, if defined.
+     * Gets the alternate slots this control will be placed in, if defined.
      *
      * @return an Optional describing the alternate slots if present
      */
@@ -89,7 +89,7 @@ public final class GUIControlDrawEvent extends Event {
     }
 
     /**
-     * Set the alternate slot or slots this control will be placed in.
+     * Sets the alternate slot or slots this control will be placed in.
      * <p>
      * If {@code customSlots} is null default slots will be used
      * (see {@link GUIControl#getDefaultSlots()}).
@@ -103,7 +103,7 @@ public final class GUIControlDrawEvent extends Event {
     }
 
     /**
-     * Get the final slot or slots this control will be placed in.
+     * Gets the final slot or slots this control will be placed in.
      * <p>
      * If {@link #getCustomSlots()} is empty this method will return the
      * defaults as defined by {@link #getType()}.
