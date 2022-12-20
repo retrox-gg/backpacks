@@ -17,7 +17,6 @@ package io.github.ms5984.retrox.backpacks.internal
 
 import io.github.ms5984.retrox.accessories.api.AccessoryService
 import io.github.ms5984.retrox.accessories.model.Category
-import io.github.ms5984.retrox.backpacks.api.BackpackService
 import org.bukkit.Material
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.inventory.ItemStack
@@ -40,11 +39,10 @@ data class Preset(
             // apply category
             AccessoryService.getInstance().addNBT(this, Category.fromId("backpack"))
             // apply backpack
-            BackpackService.getInstance().create().also { backpack ->
-                backpack as BackpackImpl
-                backpack.options["extraRows"] = rows - DEFAULT_ROWS
-                if (itemCollection) backpack.options["itemCollect"] = false
-            }.metaTool().apply(this)
+            BackpacksPlugin.instance.backpackService.create().apply {
+                rows = this@Preset.rows
+                if (itemCollection) itemCollect = false
+            }.let { BackpacksPlugin.instance.backpackService.saveToItem(it, this) }
         }
     }
 

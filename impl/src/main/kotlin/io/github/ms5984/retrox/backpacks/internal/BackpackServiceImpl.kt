@@ -24,33 +24,61 @@ import io.github.ms5984.retrox.backpacks.api.BackpackService
 import io.github.ms5984.retrox.backpacks.internal.items.ItemMetaStorage
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import java.util.function.Function
 
-data class BackpackServiceImpl(private val plugin: BackpacksPlugin) : BackpackService {
-    // Force Gson to deserialize numbers as Number (not Double)
-    private val gson: Gson = GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LAZILY_PARSED_NUMBER).create()
+class BackpackServiceImpl(private val plugin: BackpacksPlugin) : BackpackService {
+    // Force Gson to deserialize numbers as Long or Double (not just Double)
+    private val gson: Gson = GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create()
 
     override fun test(item: ItemStack?): Boolean {
-        item?.let {
-            return it.itemMeta.persistentDataContainer.has(plugin.backpackKey, ItemMetaStorage)
+        item?.itemMeta?.let {
+            return it.persistentDataContainer.has(plugin.backpackKey, ItemMetaStorage)
         }
         return false
     }
 
-    override fun loadFromItem(item: ItemStack?): Backpack? {
-        item?.let {
-            it.itemMeta.persistentDataContainer.apply {
+    override fun create() = BackpackImpl()
+
+    override fun loadFromItem(item: ItemStack?): BackpackImpl? {
+        item?.itemMeta?.let {
+            it.persistentDataContainer.apply {
                 val items = get(plugin.backpackKey, ItemMetaStorage) ?: return null // This is not a backpack
-                get(plugin.optionsKey, PersistentDataType.STRING)?.let { json ->
-                    gson.fromJson<HashMap<String, Any>?>(
-                        json,
-                        TypeToken.getParameterized(HashMap::class.java, String::class.java, Any::class.java).type
-                    )
-                }?.let { map -> return BackpackImpl(items, map) }
+                if (has(plugin.optionsKey, PersistentDataType.STRING)) {
+                    get(plugin.optionsKey, PersistentDataType.STRING)?.let { json ->
+                        gson.fromJson<HashMap<String, Any>?>(
+                            json,
+                            TypeToken.getParameterized(HashMap::class.java, String::class.java, Any::class.java).type
+                        )
+                    }?.let { map -> return BackpackImpl(items, map) }
+                }
                 return BackpackImpl(items)
             }
         }
         return null
     }
 
-    override fun create() = BackpackImpl()
+    override fun saveToItem(backpack: Backpack, item: ItemStack): Boolean {
+        backpack as BackpackImpl
+        val meta = item.itemMeta!!
+        // generate json from options
+        val options = gson.toJson(backpack.options, TypeToken.getParameterized(HashMap::class.java, String::class.java, Any::class.java).type)
+        var update = false
+        val dataContainer = meta.persistentDataContainer
+        if (!dataContainer.has(BackpacksPlugin.instance.backpackKey, ItemMetaStorage) || // The data is empty or its type is mismatched
+            dataContainer.get(BackpacksPlugin.instance.backpackKey, ItemMetaStorage) != backpack.items) { // The data is different
+            // update items
+            dataContainer.set(BackpacksPlugin.instance.backpackKey, ItemMetaStorage, backpack.items)
+            update = true
+        }
+        if (!dataContainer.has(BackpacksPlugin.instance.optionsKey, PersistentDataType.STRING) || // The data is empty or its type is mismatched
+            dataContainer.get(BackpacksPlugin.instance.optionsKey, PersistentDataType.STRING) != options) { // The data is different
+            // update options
+            dataContainer.set(BackpacksPlugin.instance.optionsKey, PersistentDataType.STRING, options)
+            update = true
+        }
+        if (update) item.itemMeta = meta
+        return update
+    }
+
+    override fun open(backpack: Backpack, update: Function<in Backpack, Boolean>?) = BackpackViewImpl(backpack as BackpackImpl, update)
 }

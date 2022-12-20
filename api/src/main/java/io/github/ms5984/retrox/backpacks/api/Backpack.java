@@ -15,8 +15,6 @@ package io.github.ms5984.retrox.backpacks.api;
  *  limitations under the License.
  */
 
-import io.github.ms5984.retrox.backpacks.api.items.BackpackMetaTool;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,24 +28,15 @@ import org.jetbrains.annotations.Nullable;
 @ApiStatus.NonExtendable
 public interface Backpack {
     /**
-     * Open this backpack for a player.
+     * Gets the number of rows this backpack has.
      *
-     * @param player a player
+     * @return the number of rows
      */
-    void open(@NotNull Player player);
+    int rows();
 
     /**
-     * Get the number of extra rows this backpack has.
-     *
-     * @return the number of extra rows
-     */
-    default int extraRows() {
-        return 0;
-    }
-
-    /**
-     * Check if the backpack supports item collection, and if so,
-     * check if item collect is currently enabled.
+     * Checks if the backpack supports item collection, and if so,
+     * checks if item collect is currently enabled.
      *
      * @return {@code null} if item collect is not supported,
      * {@code true} if enabled, {@code false} if disabled
@@ -57,23 +46,14 @@ public interface Backpack {
     }
 
     /**
-     * Get the meta tool for this backpack.
-     * <p>
-     * Useful for transforming items.
-     *
-     * @return the meta tool for this backpack
-     */
-    @NotNull BackpackMetaTool metaTool();
-
-    /**
-     * Copy this backpack.
+     * Copies this backpack.
      *
      * @return a copy of this backpack and its content
      */
     @NotNull Backpack copy();
 
     /**
-     * Create a new, empty backpack.
+     * Creates a new, empty backpack.
      * <p>
      * Delegates to {@link BackpackService#create()}.
      *

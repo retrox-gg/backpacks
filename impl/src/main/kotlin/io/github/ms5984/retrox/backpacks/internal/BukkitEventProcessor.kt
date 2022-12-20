@@ -15,8 +15,8 @@ package io.github.ms5984.retrox.backpacks.internal
  *  limitations under the License.
  */
 
-import io.github.ms5984.retrox.backpacks.api.BackpackService
 import org.bukkit.Bukkit
+import org.bukkit.block.Container
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -38,9 +38,21 @@ class BukkitEventProcessor(private val plugin: BackpacksPlugin): Listener {
             when (event.action) {
                 Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK -> {
                     // only cancel event + load if the item is a backpack
-                    takeIf { BackpackService.getInstance().test(it) }?.let {
+                    takeIf { plugin.backpackService.test(it) }?.let {
                         event.isCancelled = true
-                        loadAndOpen(it, event.player)
+                        // capture backpack item and player
+                        val backpackItem = it
+                        val player = event.player
+                        loadAndOpen(it, event.player) { backpackImpl ->
+                            val itemInMainHand = player.inventory.itemInMainHand
+                            // if the player is still holding the backpack, replace it
+                            if (itemInMainHand != backpackItem) false
+                            else {
+                                plugin.backpackService.saveToItem(backpackImpl, itemInMainHand)
+                                player.inventory.setItemInMainHand(itemInMainHand)
+                                true
+                            }
+                        }
                     }
                 }
                 else -> return
@@ -48,26 +60,56 @@ class BukkitEventProcessor(private val plugin: BackpacksPlugin): Listener {
         }
     }
 
+    // TODO find a way (cancel events) to lock the backpack's item in place
+    //  if it's in the player's inventory (which would make it less likely for
+    //  write-out to fail)
     // open backpack on right click in inventory
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     fun onRightClickInInventory(event: InventoryClickEvent) {
         // Only handle pure right clicks
         if (event.click != ClickType.RIGHT) return
-        event.currentItem?.apply {
-            // only cancel event + load if the item is a backpack
-            takeIf { BackpackService.getInstance().test(it) }?.let {
-                event.isCancelled = true
-                loadAndOpen(it, event.whoClicked as Player)
+        // only cancel event + load if the item is a backpack
+        event.currentItem?.takeIf(plugin.backpackService::test)?.let {
+            event.isCancelled = true
+            // Only let them open backpacks in an inventory we can write to
+            val getHolderInventory = event.clickedInventory?.holder.let { holder ->
+                when (holder) {
+                    is Player -> { { holder.inventory } } // use player capture
+                    is Container -> {
+                        // capture the block
+                        val block = holder.block
+                        {
+                            // if the block is still a container, return its inventory
+                            (block.state as? Container)?.inventory
+                        }
+                    }
+                    else -> null
+                }
+            } ?: return
+            // Get the slot information so we can update it later
+            val slot = event.slot
+            val backpackItem = it.clone()
+            loadAndOpen(it, event.whoClicked as Player) { backpack ->
+                val holderInventory = getHolderInventory() ?: return@loadAndOpen false
+                if (holderInventory.getItem(slot) == backpackItem) {
+                    // Item is still in the same slot and same state, update it
+                    plugin.backpackService.saveToItem(backpack, backpackItem)
+                    holderInventory.setItem(slot, backpackItem)
+                    return@loadAndOpen true
+                }
+                false
             }
         }
     }
 
-    private fun loadAndOpen(item: ItemStack, player: Player) {
+    private fun loadAndOpen(item: ItemStack, player: Player, itemUpdater: (BackpackImpl) -> Boolean) {
         // try to load async
         Bukkit.getScheduler().runTaskAsynchronously(plugin) { ->
-            item.let { BackpackService.getInstance().loadFromItem(it) }?.apply {
+            item.let { plugin.backpackService.loadFromItem(it) }?.apply {
                 // if present, open sync
-                Bukkit.getScheduler().runTask(plugin) { -> open(player) }
+                Bukkit.getScheduler().runTask(plugin) { ->
+                    plugin.backpackService.open(this) { itemUpdater.invoke(it as BackpackImpl) }.view(player)
+                }
             }
         }
     }

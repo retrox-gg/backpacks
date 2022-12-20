@@ -45,7 +45,7 @@ class BackpacksPlugin : JavaPlugin() {
     val optionsKey = NamespacedKey(this, "options")
     lateinit var givePreset: Preset
         private set
-    private val backpackService = BackpackServiceImpl(this)
+    internal val backpackService = BackpackServiceImpl(this)
     private val bukkitEventProcessor = BukkitEventProcessor(this)
 
     override fun onEnable() {

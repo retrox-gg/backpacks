@@ -18,7 +18,7 @@ package io.github.ms5984.retrox.backpacks.internal.gui
 import io.github.ms5984.retrox.backpacks.internal.BackpackImpl
 import org.bukkit.entity.Player
 
-data class BackpackGUI(val backpack: BackpackImpl, val player: Player) {
+data class BackpackGUI(val backpack: BackpackImpl, val player: Player, val onClose: ((BackpackImpl) -> Boolean)? = null) {
     val pages
         get() = backpack.rows / MAX_ROWS_DISPLAYED + if (backpack.rows % MAX_ROWS_DISPLAYED == 0) 0 else 1
 

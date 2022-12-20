@@ -22,11 +22,11 @@ import org.bukkit.inventory.ItemStack
  *
  * @since 0.0.1
  */
-data class StoredItems(private val _items: MutableMap<Int, ItemStack> = HashMap()) {
+data class StoredItems(private val _items: HashMap<Int, ItemStack> = HashMap()) {
     val items
         get() = _items.toMap()
 
-    constructor(that: StoredItems) : this(that._items.toMutableMap())
+    constructor(that: StoredItems) : this(HashMap(that._items))
 
     fun setItem(position: Int, item: ItemStack?) : Boolean {
         if (position < 0) throw IllegalArgumentException("position must be non-negative")

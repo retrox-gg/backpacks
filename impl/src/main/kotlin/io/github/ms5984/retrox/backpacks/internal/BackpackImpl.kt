@@ -17,23 +17,17 @@ package io.github.ms5984.retrox.backpacks.internal
 
 import io.github.ms5984.retrox.backpacks.api.Backpack
 import io.github.ms5984.retrox.backpacks.internal.data.StoredItems
-import io.github.ms5984.retrox.backpacks.internal.gui.BackpackGUI
-import io.github.ms5984.retrox.backpacks.internal.items.BackpackMetaToolImpl
-import org.bukkit.entity.Player
 
-data class BackpackImpl(val items: StoredItems = StoredItems(), val options: MutableMap<String, Any> = HashMap()) : Backpack {
-    val rows
-        get() = DEFAULT_ROWS + extraRows()
+data class BackpackImpl(val items: StoredItems = StoredItems(), val options: HashMap<String, Any> = HashMap()) : Backpack {
+    internal var rows: Int
+        get() = (options["rows"] as? Long)?.toInt() ?: 1
+        set(value) { options["rows"] = value }
 
-    override fun open(player: Player) {
-        BackpackGUI(this, player).page(1)
-    }
+    internal var itemCollect: Boolean?
+        get() = options["itemCollect"] as? Boolean
+        set(value) { value?.let { options["itemCollect"] = it } ?: options.remove("itemCollect") }
 
-    override fun extraRows() = (options["extraRows"] as? Number)?.toInt() ?: 0
-
-    override fun itemCollect() = options["itemCollect"] as? Boolean
-
-    override fun metaTool() = BackpackMetaToolImpl(this)
-
-    override fun copy() = BackpackImpl(StoredItems(items), options.toMutableMap())
+    override fun rows() = rows
+    override fun itemCollect() = itemCollect
+    override fun copy() = BackpackImpl(StoredItems(items), HashMap(options))
 }

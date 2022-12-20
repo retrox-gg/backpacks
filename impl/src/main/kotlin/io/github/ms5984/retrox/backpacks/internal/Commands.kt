@@ -19,7 +19,6 @@ import cloud.commandframework.annotations.*
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.meta.SimpleCommandMeta
 import cloud.commandframework.paper.PaperCommandManager
-import io.github.ms5984.retrox.backpacks.api.BackpackService
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.jetbrains.annotations.Nullable
@@ -42,11 +41,9 @@ class Commands(private val plugin: BackpacksPlugin) {
     fun giveCommand(sender: CommandSender, @Argument("player") @Nullable player: Player?) {
         val target = player ?: sender as? Player
         target?.let { targetPlayer ->
-            val loadedBackpack = plugin.givePreset.item
+            plugin.givePreset.item
                 .also { targetPlayer.inventory.addItem(it) }
-                .also { plugin.logger.info("$it") }
-                .let { BackpackService.getInstance().loadFromItem(it) }
-            loadedBackpack!!.open(targetPlayer)
+                .also { plugin.logger.info("$it") } // TODO message
             return
         }
         Messages.get("fail.command.target.playerOrSelf").send(sender)

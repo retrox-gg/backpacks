@@ -1,4 +1,4 @@
-package io.github.ms5984.retrox.backpacks.internal
+package io.github.ms5984.retrox.backpacks.api;
 /*
  *  Copyright 2022 ms5984, Retrox
  *
@@ -15,4 +15,27 @@ package io.github.ms5984.retrox.backpacks.internal
  *  limitations under the License.
  */
 
-const val DEFAULT_ROWS = 2
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * Represents a backpack to be viewed.
+ *
+ * @since 0.0.1
+ * @author ms5984
+ */
+public interface BackpackView {
+    /**
+     * Gets the backpack associated with this view.
+     *
+     * @return the backpack
+     */
+    @NotNull Backpack getBackpack();
+
+    /**
+     * Adds a player to this view.
+     *
+     * @param player a player
+     */
+    void view(@NotNull Player player);
+}

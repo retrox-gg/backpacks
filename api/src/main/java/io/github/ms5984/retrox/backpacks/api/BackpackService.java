@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -33,17 +34,24 @@ import java.util.function.Predicate;
 @ApiStatus.NonExtendable
 public interface BackpackService extends Predicate<ItemStack> {
     /**
-     * Check if an item has backpack data.
+     * Checks if an item has backpack data.
      *
      * @param item an item
      * @return true if the item has backpack data
      */
     @Override
     @Contract("null -> false")
-    boolean test(ItemStack item);
+    boolean test(@Nullable ItemStack item);
 
     /**
-     * Load the backpack data stored in an item.
+     * Creates a new, empty backpack.
+     *
+     * @return a new backpack
+     */
+    @NotNull Backpack create();
+
+    /**
+     * Loads the backpack data stored in an item.
      *
      * @param item an item
      * @return the backpack represented by the item or null if not a backpack
@@ -52,14 +60,29 @@ public interface BackpackService extends Predicate<ItemStack> {
     @Nullable Backpack loadFromItem(@Nullable ItemStack item);
 
     /**
-     * Create a new, empty backpack.
+     * Saves backpack data to a given item's meta.
+     * <p>
+     * <strong>{@code item} will be modified.</strong>
      *
-     * @return a new backpack
+     * @param backpack a backpack
+     * @param item an item
+     * @return true only if the item's meta was updated
      */
-    @NotNull Backpack create();
+    boolean saveToItem(@NotNull Backpack backpack, @NotNull ItemStack item);
 
     /**
-     * Get the current service instance.
+     * Prepares a backpack view.
+     * <p>
+     * {@code update} should return false if the update is unsuccessful.
+     *
+     * @param backpack a backpack
+     * @param update a callback to update the backpack
+     * @return a backpack view
+     */
+    @NotNull BackpackView open(@NotNull Backpack backpack, @Nullable Function<? super Backpack, Boolean> update);
+
+    /**
+     * Gets the current service instance.
      *
      * @return the current service instance
      * @throws IllegalStateException if no service yet registered
