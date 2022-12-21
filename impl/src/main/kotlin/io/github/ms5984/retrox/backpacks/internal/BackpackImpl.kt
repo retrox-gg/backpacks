@@ -27,6 +27,10 @@ data class BackpackImpl(val items: StoredItems = StoredItems(), val options: Has
         get() = options["itemCollect"] as? Boolean
         set(value) { value?.let { options["itemCollect"] = it } ?: options.remove("itemCollect") }
 
+    var lorePreview: Boolean?
+        get() = options["lorePreview"] as? Boolean
+        internal set(value) { value?.let { options["lorePreview"] = it } ?: options.remove("lorePreview") }
+
     override fun rows() = rows
     override fun itemCollect() = itemCollect
     override fun copy() = BackpackImpl(StoredItems(items), HashMap(options))
