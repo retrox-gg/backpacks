@@ -29,6 +29,23 @@ presets:
     lore:
       - "<gray>Right click to open"
 
+# Configure responses
+responses:
+  # Responses for the give subcommand
+  give:
+    # Messages sent to the player if they get a backpack administratively
+    received:
+      unspecified: "<green>You have been given a backpack!"
+      ### Placeholders:
+      ### <sender> - who sent the backpack
+      attributed_: "<green><sender> has given you a backpack!"
+    # Sent to the command sender if they give a backpack to a player administratively
+    ### Placeholders:
+    ### <player> - the name of the player given a backpack
+    sender_: "<green>You have given a backpack to <player>!"
+    # Message sent if backpack dropped at receiver's feet
+    dropped: "<yellow>Inventory full. Backpack dropped at feet."
+
 # Configure the GUI
 #
 # See lang/messages.properties

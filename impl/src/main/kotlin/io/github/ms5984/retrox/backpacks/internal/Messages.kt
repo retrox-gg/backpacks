@@ -20,6 +20,7 @@ import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.ComponentLike
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver
 import org.bukkit.Bukkit
 import org.jetbrains.annotations.PropertyKey
 import java.util.PropertyResourceBundle
@@ -31,18 +32,19 @@ object Messages {
     fun get(@PropertyKey(resourceBundle = "lang.messages") key: String): LangString =
         LangString(key)
 
-    fun getAsList(@PropertyKey(resourceBundle = "lang.messages") key: String): List<Chaining> =
+    fun getAsList(@PropertyKey(resourceBundle = "lang.messages") key: String): List<Raw> =
         LangString(key).splitOnNewlines()
 
     @Suppress("MemberVisibilityCanBePrivate")
-    sealed class Raw(val text: String) : Rendered {
+    open class Raw(val text: String) : Rendered {
         override fun asComponent() = miniMessage.deserialize(text)
-        fun splitOnNewlines(): List<Chaining> = text.split("\\n").map { Chaining(it) }
+        fun splitOnNewlines(): List<Raw> = text.split("\\n").map { Raw(it) }
         fun asDisplayName(): Component = miniMessage.deserialize(TagLib.ampersand(text).displayNameOverride())
         fun asLoreLine(): Component = miniMessage.deserialize(TagLib.ampersand(text).loreLineOverride())
+        fun resolveWith(tagResolver: TagResolver): Rendered = Rendered { miniMessage.deserialize(text, tagResolver) }
+        fun resolveWith(vararg tagResolvers: TagResolver): Rendered = Rendered { miniMessage.deserialize(text, *tagResolvers) }
     }
 
-    class Chaining(text: String) : Raw(text)
     class LangString(@PropertyKey(resourceBundle = "lang.messages") val key: String) : Raw(bundle.getString(key))
 
     fun interface Rendered : ComponentLike {

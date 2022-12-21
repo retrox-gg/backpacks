@@ -53,8 +53,8 @@ data class Preset(
                 config.getBoolean("itemCollection"),
                 Material.matchMaterial(config.getString("material")!!)!!,
                 config.getInt("model-data").takeIf { it != 0 },
-                Messages.Chaining(config.getString("displayName") ?: "Backpack"),
-                config.getStringList("lore").map { Messages.Chaining(it) }
+                Messages.Raw(config.getString("displayName") ?: "Backpack"),
+                config.getStringList("lore").map { Messages.Raw(it) }
             )
         }
     }

@@ -19,6 +19,7 @@ import cloud.commandframework.annotations.*
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.meta.SimpleCommandMeta
 import cloud.commandframework.paper.PaperCommandManager
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.jetbrains.annotations.Nullable
@@ -41,11 +42,42 @@ class Commands(private val plugin: BackpacksPlugin) {
     fun giveCommand(sender: CommandSender, @Argument("player") @Nullable player: Player?) {
         val target = player ?: sender as? Player
         target?.let { targetPlayer ->
-            plugin.givePreset.item
-                .also { targetPlayer.inventory.addItem(it) }
-                .also { plugin.logger.info("$it") } // TODO message
+            plugin.givePreset.item.let {
+                // try to add item to target's inventory
+                val result = targetPlayer.inventory.addItem(it)
+                // message
+                when (sender) {
+                    targetPlayer -> {
+                        // message receiver == sender
+                        getResponse("give.received.unspecified")?.send(sender)
+                    }
+                    else -> {
+                        // message receiver
+                        getResponse("give.received.attributed_")?.resolveWith(
+                            if (sender is Player) Placeholder.component("sender", sender.displayName())
+                            else Placeholder.unparsed("sender", sender.name)
+                        )?.send(targetPlayer)
+                        // message sender
+                        getResponse("give.sender_")?.resolveWith(
+                            Placeholder.component("player", targetPlayer.displayName())
+                        )?.send(sender)
+                    }
+                }
+                if (result.isNotEmpty()) {
+                    // drop item
+                    targetPlayer.world.dropItem(targetPlayer.location, it)
+                    // message sender
+                    getResponse("give.dropped")?.send(sender)
+                    if (targetPlayer != sender) {
+                        // also message receiver
+                        getResponse("give.dropped")?.send(targetPlayer)
+                    }
+                }
+            }
             return
         }
         Messages.get("fail.command.target.playerOrSelf").send(sender)
     }
+
+    private fun getResponse(path: String): Messages.Raw? = plugin.config.getString("responses.$path")?.let { Messages.Raw(it) }
 }
