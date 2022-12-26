@@ -24,6 +24,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
@@ -88,13 +89,33 @@ class BukkitEventProcessor(private val plugin: BackpacksPlugin): Listener {
             } ?: return
             // Get the slot information so we can update it later
             val slot = event.slot
+            val hotbarSlot = event.takeIf { event.clickedInventory?.holder is Player }?.slot.takeIf { i -> i in 0..8 }
             val backpackItem = it.clone()
+            val lockInPlace = LockBackpackItemInPlaceListener(event.whoClicked as Player) { laterEvent ->
+                when (laterEvent.action) {
+                    // Cancel normal item pickup, swap, move, collect and drop for slot
+                    InventoryAction.PICKUP_ALL, InventoryAction.PICKUP_SOME, InventoryAction.PICKUP_ONE,
+                    InventoryAction.SWAP_WITH_CURSOR, InventoryAction.MOVE_TO_OTHER_INVENTORY,
+                    InventoryAction.COLLECT_TO_CURSOR, InventoryAction.DROP_ALL_SLOT, InventoryAction.DROP_ONE_SLOT ->
+                        slot == laterEvent.slot && laterEvent.clickedInventory === getHolderInventory()
+                    InventoryAction.HOTBAR_SWAP -> {
+                        // TODO debug this section (it's not fully working)
+                        // If slot was a hotbar slot and this is a hotbar swap with that slot, cancel
+                        hotbarSlot?.let { key -> laterEvent.slot == key}
+                            // if it wasn't a hotbar slot, cancel if the slot + inventory matches
+                            ?: (laterEvent.slot == slot && laterEvent.clickedInventory === getHolderInventory())
+                    }
+                    else -> false
+                }
+            }
+            Bukkit.getPluginManager().registerEvents(lockInPlace, plugin)
             loadAndOpen(it, event.whoClicked as Player) { backpack ->
                 val holderInventory = getHolderInventory() ?: return@loadAndOpen false
                 if (holderInventory.getItem(slot) == backpackItem) {
                     // Item is still in the same slot and same state, update it
                     plugin.backpackService.saveToItem(backpack, backpackItem)
                     holderInventory.setItem(slot, backpackItem)
+                    lockInPlace.unregister()
                     return@loadAndOpen true
                 }
                 false
@@ -111,6 +132,20 @@ class BukkitEventProcessor(private val plugin: BackpacksPlugin): Listener {
                     plugin.backpackService.open(this) { itemUpdater.invoke(it as BackpackImpl) }.view(player)
                 }
             }
+        }
+    }
+
+    companion object {
+        private class LockBackpackItemInPlaceListener(val player: Player,
+                                                      val test: ((event: InventoryClickEvent) -> Boolean)): Listener {
+            // stop the player from moving the backpack item while it's open
+            @EventHandler(ignoreCancelled = true)
+            fun onBackpackClickWhileOpen(event: InventoryClickEvent) {
+                if (event.whoClicked !== player) return
+                if (test.invoke(event)) event.isCancelled = true
+            }
+
+            fun unregister() = InventoryClickEvent.getHandlerList().unregister(this)
         }
     }
 }
